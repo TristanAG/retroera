@@ -83,6 +83,7 @@ button:focus-visible {
 
 .add-form {
   text-align: center;
+  width: 400px;
 }
 
 label {
