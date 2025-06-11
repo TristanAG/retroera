@@ -5,6 +5,7 @@ import { auth } from "./firebase";
 import 'bulma/css/bulma.min.css';
 
 import Header from './components/Header'
+import AddGame from './components/AddGame'
 
 function App() {
   const [email, setEmail] = useState("");
@@ -43,6 +44,7 @@ function App() {
   };
 
   const handleLogOut = async () => {
+    console.log('test')
     await logOut();
     setUser(null);
     setGames([]);
@@ -79,83 +81,33 @@ function App() {
 
   return (
     <section className="section">
-      <Header user={user}/>
-      
-
-      
-      
-      {user && (
-        <div class="welcome-wrapper">
-          <p>Welcome, {user.email}</p>
-          <button onClick={handleLogOut}>Log Out</button>
-        </div>
-      )}
+      <Header user={user} onLogOut={handleLogOut} />
 
       {user ? (
         <div className="section">
-          <h2>My Game Collection</h2>
+
+          <AddGame
+            gameTitle={gameTitle}
+            setGameTitle={setGameTitle}
+            consoleName={consoleName}
+            setConsoleName={setConsoleName}
+            condition={condition}
+            setCondition={setCondition}
+            estimatedValue={estimatedValue}
+            setEstimatedValue={setEstimatedValue}
+            handleAddGame={handleAddGame}
+          />
           
-          <div className="add-form">
-            <div className="field">
-              <div className="control">
-                <label class="label">Game Title</label>
-                <input
-                  type="text"
-                  placeholder="Enter game title"
-                  value={gameTitle}
-                  className="input"
-                  onChange={(e) => setGameTitle(e.target.value)}
-                />
-              </div>
-            </div>
-
-            <div className="field">
-              <div className="control">
-                <label class="label">Console</label>
-                <input
-                  type="text"
-                  placeholder="Enter console"
-                  value={consoleName}
-                  className="input"
-                  onChange={(e) => setConsoleName(e.target.value)}
-                />
-              </div>
-            </div>
-
-            <div className="field">
-              <div className="control">
-                <label class="label">Condition</label>
-                <select value={condition} onChange={(e) => setCondition(e.target.value)} className="input">
-                  <option value="CIB">CIB (Complete in Box)</option>
-                  <option value="Disc Only">Disc Only</option>
-                  <option value="New">New</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="field">
-              <div className="control">
-                <label class="label">Estimated Value</label>
-                <input
-                  type="number"
-                  placeholder="Estimated Value"
-                  value={estimatedValue}
-                  className="input"
-                  onChange={(e) => setEstimatedValue(e.target.value)}
-                />
-              </div>
-            </div>
-            <button onClick={handleAddGame}>Add Game</button>
-          </div>
-
           <h3>Your Games:</h3>
+
           <ul>
             {games.map((game) => (
               <li key={game.id}>
                 {game.title} - {game.console} ({game.condition}) - ${game.estimated_value}
               </li>
             ))}
-          </ul>
+          </ul> 
+          
         </div>
       ) : (
         <div>
