@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 import { signUp, logIn, logOut } from "./authService";
 import { addGame, getGames } from "./firestoreService";
 import { auth } from "./firebase";
+import 'bulma/css/bulma.min.css';
+
+import Header from './components/Header'
 
 function App() {
   const [email, setEmail] = useState("");
@@ -9,6 +12,9 @@ function App() {
   const [user, setUser] = useState(null);
   const [games, setGames] = useState([]);
   const [gameTitle, setGameTitle] = useState("");
+  const [consoleName, setConsoleName] = useState("");
+  const [condition, setCondition] = useState("CIB");
+  const [estimatedValue, setEstimatedValue] = useState("");
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
@@ -43,10 +49,19 @@ function App() {
   };
 
   const handleAddGame = async () => {
-    if (!gameTitle) return alert("Enter a game title!");
+    if (!gameTitle || !consoleName || !estimatedValue) return alert("Fill in all fields!");
     try {
-      await addGame({ title: gameTitle, userId: user.uid });
+      await addGame({
+        title: gameTitle,
+        console: consoleName,
+        condition,
+        estimated_value: parseFloat(estimatedValue),
+        userId: user.uid,
+      });
       setGameTitle("");
+      setConsoleName("");
+      setCondition("CIB");
+      setEstimatedValue("");
       fetchGames();
     } catch (error) {
       alert(error.message);
@@ -63,25 +78,82 @@ function App() {
   };
 
   return (
-    <div>
-      <h1>Retrobay</h1>
-      {user ? (
-        <div>
+    <section className="section">
+      <Header user={user}/>
+      
+
+      
+      
+      {user && (
+        <div class="welcome-wrapper">
           <p>Welcome, {user.email}</p>
           <button onClick={handleLogOut}>Log Out</button>
+        </div>
+      )}
 
+      {user ? (
+        <div className="section">
           <h2>My Game Collection</h2>
-          <input
-            type="text"
-            placeholder="Enter game title"
-            value={gameTitle}
-            onChange={(e) => setGameTitle(e.target.value)}
-          />
-          <button onClick={handleAddGame}>Add Game</button>
+          
+          <div className="add-form">
+            <div className="field">
+              <div className="control">
+                <label class="label">Game Title</label>
+                <input
+                  type="text"
+                  placeholder="Enter game title"
+                  value={gameTitle}
+                  className="input"
+                  onChange={(e) => setGameTitle(e.target.value)}
+                />
+              </div>
+            </div>
 
+            <div className="field">
+              <div className="control">
+                <label class="label">Console</label>
+                <input
+                  type="text"
+                  placeholder="Enter console"
+                  value={consoleName}
+                  className="input"
+                  onChange={(e) => setConsoleName(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="field">
+              <div className="control">
+                <label class="label">Condition</label>
+                <select value={condition} onChange={(e) => setCondition(e.target.value)} className="input">
+                  <option value="CIB">CIB (Complete in Box)</option>
+                  <option value="Disc Only">Disc Only</option>
+                  <option value="New">New</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="field">
+              <div className="control">
+                <label class="label">Estimated Value</label>
+                <input
+                  type="number"
+                  placeholder="Estimated Value"
+                  value={estimatedValue}
+                  className="input"
+                  onChange={(e) => setEstimatedValue(e.target.value)}
+                />
+              </div>
+            </div>
+            <button onClick={handleAddGame}>Add Game</button>
+          </div>
+
+          <h3>Your Games:</h3>
           <ul>
             {games.map((game) => (
-              <li key={game.id}>{game.title}</li>
+              <li key={game.id}>
+                {game.title} - {game.console} ({game.condition}) - ${game.estimated_value}
+              </li>
             ))}
           </ul>
         </div>
@@ -93,7 +165,7 @@ function App() {
           <button onClick={handleLogIn}>Log In</button>
         </div>
       )}
-    </div>
+    </section>
   );
 }
 
