@@ -93,3 +93,8 @@ button:focus-visible {
 label {
   text-align: left;
 }
+
+.login-form {
+  padding-top: 28px;
+  text-align: center;
+}
