@@ -6,6 +6,7 @@ import 'bulma/css/bulma.min.css';
 
 import Header from './components/Header'
 import AddGame from './components/AddGame'
+import GamesList from './components/GamesList'
 
 function App() {
   const [email, setEmail] = useState("");
@@ -98,7 +99,9 @@ function App() {
             handleAddGame={handleAddGame}
           />
           
-          <h3>Your Games:</h3>
+        <GamesList games={games} />
+
+          {/* <h3>Your Games:</h3>
 
           <ul>
             {games.map((game) => (
@@ -106,8 +109,8 @@ function App() {
                 {game.title} - {game.console} ({game.condition}) - ${game.estimated_value}
               </li>
             ))}
-          </ul> 
-          
+          </ul>  */}
+
         </div>
       ) : (
         <div>

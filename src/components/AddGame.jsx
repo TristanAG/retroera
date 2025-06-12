@@ -27,13 +27,20 @@ function AddGame({
         <div className="field">
           <div className="control">
             <label className="label">Console</label>
-            <input
-              type="text"
-              placeholder="Enter console"
+            <select
               value={consoleName}
-              className="input"
               onChange={(e) => setConsoleName(e.target.value)}
-            />
+              className="input"
+            >
+              <option value="">Select Console</option>
+              <option value="Playstation">Playstation</option>
+              <option value="Playstation 2">Playstation 2</option>
+              <option value="GameCube">GameCube</option>
+              <option value="Game Boy">Game Boy</option>
+              <option value="Game Boy Color">Game Boy Color</option>
+              <option value="Game Boy Advance">Game Boy Advance</option>
+              <option value="Dreamcast">Dreamcast</option>
+            </select>
           </div>
         </div>
   
