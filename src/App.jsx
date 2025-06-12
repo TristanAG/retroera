@@ -5,6 +5,7 @@ import { auth } from "./firebase";
 import 'bulma/css/bulma.min.css';
 
 import Header from './components/Header'
+import Login from './components/Login'
 import AddGame from './components/AddGame'
 import GamesList from './components/GamesList'
 
@@ -101,24 +102,16 @@ function App() {
           
         <GamesList games={games} />
 
-          {/* <h3>Your Games:</h3>
-
-          <ul>
-            {games.map((game) => (
-              <li key={game.id}>
-                {game.title} - {game.console} ({game.condition}) - ${game.estimated_value}
-              </li>
-            ))}
-          </ul>  */}
-
         </div>
       ) : (
-        <div>
-          <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
-          <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
-          <button onClick={handleSignUp}>Sign Up</button>
-          <button onClick={handleLogIn}>Log In</button>
-        </div>
+        <Login 
+          onLogin={handleLogIn} 
+          onSignUp={handleSignUp} 
+          setPassword={setPassword} 
+          password={password} 
+          setEmail={setEmail} 
+          email={email} 
+        />
       )}
     </section>
   );
