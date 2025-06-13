@@ -19,6 +19,8 @@ function App() {
   const [condition, setCondition] = useState("CIB");
   const [estimatedValue, setEstimatedValue] = useState("");
 
+  const [page, setPage] = useState('home')
+
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
       setUser(currentUser);
@@ -83,24 +85,34 @@ function App() {
 
   return (
     <section className="section">
-      <Header user={user} onLogOut={handleLogOut} />
+      <Header user={user} onLogOut={handleLogOut} setPage={setPage}/>
 
       {user ? (
         <div className="section">
-
-          <AddGame
-            gameTitle={gameTitle}
-            setGameTitle={setGameTitle}
-            consoleName={consoleName}
-            setConsoleName={setConsoleName}
-            condition={condition}
-            setCondition={setCondition}
-            estimatedValue={estimatedValue}
-            setEstimatedValue={setEstimatedValue}
-            handleAddGame={handleAddGame}
-          />
+          {page === 'home' && (
+            <>
+              <AddGame
+                gameTitle={gameTitle}
+                setGameTitle={setGameTitle}
+                consoleName={consoleName}
+                setConsoleName={setConsoleName}
+                condition={condition}
+                setCondition={setCondition}
+                estimatedValue={estimatedValue}
+                setEstimatedValue={setEstimatedValue}
+                handleAddGame={handleAddGame}
+              />
           
-        <GamesList games={games} />
+              <GamesList games={games} />
+            </>
+          )}
+
+          {page === 'user' && (
+            <>
+              <p>user page</p>
+            </>
+          )}
+                    
 
         </div>
       ) : (
