@@ -90,7 +90,7 @@ function App() {
       {user ? (
         <div className="section">
           {page === 'home' && (
-            <>
+            <div className="user-screen">
               <AddGame
                 gameTitle={gameTitle}
                 setGameTitle={setGameTitle}
@@ -104,7 +104,7 @@ function App() {
               />
           
               <GamesList games={games} />
-            </>
+            </div>
           )}
 
           {page === 'user' && (

@@ -108,3 +108,8 @@ label {
     cursor: pointer;
   }
 }
+
+.user-screen {
+  display: flex;
+  justify-content: space-between;
+}
