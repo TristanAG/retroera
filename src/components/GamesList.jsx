@@ -1,60 +1,65 @@
 import { useEffect, useState } from "react";
-import { subscribeToConsoles, getGamesByConsole } from "../firestoreService";
+import { subscribeToConsoles, subscribeToGamesByConsole } from "../firestoreService";
 
 const GamesList = ({ games }) => {
   const [consoles, setConsoles] = useState([]);
   const [selectedConsoleGames, setSelectedConsoleGames] = useState([]);
-  const [activeView, setActiveView] = useState("all"); // 🔥 NEW: track selected menu option
+  const [selectedConsole, setSelectedConsole] = useState(null);
 
-  // Subscribe to consoles in real-time on mount
+  // Subscribe to consoles list in real-time
   useEffect(() => {
     const unsubscribe = subscribeToConsoles(setConsoles);
     return () => unsubscribe();
   }, []);
 
-  const handleSelectConsole = async (consoleName) => {
-    try {
-      const games = await getGamesByConsole(consoleName);
-      setSelectedConsoleGames(games);
-      setActiveView(consoleName); // 🔥 NEW: set active view to selected console
-    } catch (error) {
-      console.error("Error fetching games by console:", error.message);
+  // Subscribe to games of selected console in real-time
+  useEffect(() => {
+    if (!selectedConsole) {
+      setSelectedConsoleGames([]);
+      return;
     }
-  };
+    const unsubscribe = subscribeToGamesByConsole(selectedConsole, setSelectedConsoleGames);
+    return () => unsubscribe();
+  }, [selectedConsole]);
 
-  const handleShowAllGames = () => {
-    setActiveView("all"); // 🔥 NEW: show the full games list
-    setSelectedConsoleGames([]);
-  };
+  // Calculate total value for all games (passed in)
+  const totalValueAllGames = games.reduce((sum, game) => sum + (parseFloat(game.estimated_value) || 0), 0);
+
+  // Calculate total value for selected console's games
+  const totalValueSelectedConsole = selectedConsoleGames.reduce(
+    (sum, game) => sum + (parseFloat(game.estimated_value) || 0),
+    0
+  );
 
   return (
     <div>
-      <h3>Your Consoles:</h3>
       <ul className="user-console-list">
-        <li key="all">
-          <p
-            className={`has-text-info ${activeView === "all" ? "has-text-weight-bold" : ""}`}
-            onClick={handleShowAllGames}
-          >
-            All Games
-          </p>
-        </li>
         {consoles.map((consoleName) => (
           <li key={consoleName}>
             <p
-              className={`has-text-info ${activeView === consoleName ? "has-text-weight-bold" : ""}`}
-              onClick={() => handleSelectConsole(consoleName)}
+              className={`has-text-info ${selectedConsole === consoleName ? "is-underlined" : ""}`}
+              onClick={() => setSelectedConsole(consoleName)}
+              style={{ cursor: "pointer" }}
             >
               {consoleName}
             </p>
           </li>
         ))}
+        <li>
+          <p
+            className={`has-text-info ${selectedConsole === null ? "is-underlined" : ""}`}
+            onClick={() => setSelectedConsole(null)}
+            style={{ cursor: "pointer" }}
+          >
+            All Games
+          </p>
+        </li>
       </ul>
 
-      {/* 🔥 CONDITIONAL RENDERING */}
-      {activeView === "all" && (
+      {selectedConsole === null ? (
         <>
           <h3>Your Games:</h3>
+          <p><strong>Total Value:</strong> ${totalValueAllGames.toFixed(2)}</p>
           <ul>
             {games.map((game) => (
               <li key={game.id}>
@@ -63,11 +68,10 @@ const GamesList = ({ games }) => {
             ))}
           </ul>
         </>
-      )}
-
-      {activeView !== "all" && selectedConsoleGames.length > 0 && (
+      ) : (
         <>
-          <h4>Games for {selectedConsoleGames[0]?.console}:</h4>
+          <h4>Games for {selectedConsole}:</h4>
+          <p><strong>Total Value:</strong> ${totalValueSelectedConsole.toFixed(2)}</p>
           <ul>
             {selectedConsoleGames.map((game) => (
               <li key={game.id}>

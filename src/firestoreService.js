@@ -109,3 +109,19 @@ export const getGamesByConsole = async (consoleName) => {
   const querySnapshot = await getDocs(gamesRef);
   return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 };
+
+// Subscribe to real-time updates of games for a specific console for current user
+export const subscribeToGamesByConsole = (consoleName, callback) => {
+  const user = auth.currentUser;
+  if (!user) throw new Error("User not authenticated");
+
+  const gamesRef = collection(db, "users", user.uid, "consoles", consoleName, "games");
+  const q = query(gamesRef);
+
+  const unsubscribe = onSnapshot(q, (snapshot) => {
+    const games = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    callback(games);
+  });
+
+  return unsubscribe;
+};
