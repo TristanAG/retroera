@@ -1,5 +1,15 @@
 import { db, auth } from "./firebase";
-import { collection, addDoc, getDocs, query, where, doc, deleteDoc } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  where,
+  doc,
+  deleteDoc,
+  setDoc,
+  onSnapshot
+} from "firebase/firestore";
 
 // Add a new game to Firestore
 export const addGame = async (game) => {
@@ -12,8 +22,23 @@ export const addGame = async (game) => {
       console: game.console,
       condition: game.condition,
       estimated_value: game.estimated_value,
-      userId: user.uid, // Store the user ID to identify who owns the game
+      userId: user.uid,
     });
+
+    // Also add to console-specific collection
+    await addDoc(collection(db, "users", user.uid, "consoles", game.console, "games"), {
+      title: game.title,
+      console: game.console,
+      condition: game.condition,
+      estimated_value: game.estimated_value,
+      userId: user.uid,
+    });
+
+    // Add/overwrite console doc (for console list)
+    await setDoc(doc(db, "users", user.uid, "consoles", game.console), {
+      name: game.console,
+    });
+
   } catch (error) {
     console.error("Error adding game:", error.message);
     throw error;
@@ -30,7 +55,7 @@ export const getGames = async () => {
 
   try {
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
   } catch (error) {
     console.error("Error fetching games:", error.message);
     throw error;
@@ -50,4 +75,37 @@ export const removeGame = async (gameId) => {
     console.error("Error removing game:", error.message);
     throw error;
   }
+};
+
+// Fetch user's console list (static fetch)
+export const getConsoles = async () => {
+  const user = auth.currentUser;
+  if (!user) throw new Error("User not authenticated");
+
+  const consolesRef = collection(db, "users", user.uid, "consoles");
+  const consolesSnapshot = await getDocs(consolesRef);
+  return consolesSnapshot.docs.map((doc) => doc.id);
+};
+
+// 🔥 Subscribe to user's consoles in real-time
+export const subscribeToConsoles = (onUpdate) => {
+  const user = auth.currentUser;
+  if (!user) throw new Error("User not authenticated");
+
+  const consolesRef = collection(db, "users", user.uid, "consoles");
+
+  return onSnapshot(consolesRef, (snapshot) => {
+    const consoleNames = snapshot.docs.map((doc) => doc.id);
+    onUpdate(consoleNames);
+  });
+};
+
+// Fetch games for a specific console for current user
+export const getGamesByConsole = async (consoleName) => {
+  const user = auth.currentUser;
+  if (!user) throw new Error("User not authenticated");
+
+  const gamesRef = collection(db, "users", user.uid, "consoles", consoleName, "games");
+  const querySnapshot = await getDocs(gamesRef);
+  return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 };
