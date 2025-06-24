@@ -98,3 +98,13 @@ label {
   padding-top: 28px;
   text-align: center;
 }
+
+.user-console-list {
+  display: flex;
+
+  li {
+    margin-right: 8px;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+}
