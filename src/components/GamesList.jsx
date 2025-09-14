@@ -35,24 +35,41 @@ const GamesList = ({ games }) => {
     <div>
       <ul className="user-console-list">
         {consoles.map((consoleName) => (
-          <li key={consoleName}>
-            <p
+          <li key={consoleName} className={consoleName.split(' ').join('-').toLowerCase()}>
+            {/* <p
               className={`has-text-info ${selectedConsole === consoleName ? "is-underlined" : ""}`}
               onClick={() => setSelectedConsole(consoleName)}
               style={{ cursor: "pointer" }}
             >
               {consoleName}
-            </p>
+            </p> */}
+            
+            <span 
+              className={`tag ${selectedConsole === consoleName ? "is-info" : "is-light"}`}
+              onClick={() => setSelectedConsole(consoleName)}
+              style={{ cursor: "pointer" }}
+            >
+              {consoleName}
+            </span>
+
           </li>
         ))}
         <li>
-          <p
+          {/* <p
             className={`has-text-info ${selectedConsole === null ? "is-underlined" : ""}`}
             onClick={() => setSelectedConsole(null)}
             style={{ cursor: "pointer" }}
           >
             All Games
-          </p>
+          </p> */}
+          <span 
+              className={`tag ${selectedConsole === null ? "is-info" : "is-light"}`}
+              onClick={() => setSelectedConsole(null)}
+              style={{ cursor: "pointer" }}
+            >
+              All Games
+            </span>
+
         </li>
       </ul>
 

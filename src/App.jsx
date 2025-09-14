@@ -5,9 +5,11 @@ import { auth } from "./firebase";
 import 'bulma/css/bulma.min.css';
 
 import Header from './components/Header'
+import Navigation from './components/Navigation'
 import Login from './components/Login'
 import AddGame from './components/AddGame'
 import GamesList from './components/GamesList'
+
 
 function App() {
   const [email, setEmail] = useState("");
@@ -86,6 +88,8 @@ function App() {
   return (
     <section className="section">
       <Header user={user} onLogOut={handleLogOut} setPage={setPage}/>
+
+      <Navigation />
 
       {user ? (
         <div className="section">
