@@ -32,7 +32,7 @@ const GamesList = ({ games }) => {
   );
 
   return (
-    <div>
+    <div style={{ margin: "0 auto" }}>
       <ul className="user-console-list">
         {consoles.map((consoleName) => (
           <li key={consoleName} className={consoleName.split(' ').join('-').toLowerCase()}>

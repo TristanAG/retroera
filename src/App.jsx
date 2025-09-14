@@ -2,14 +2,13 @@ import { useState, useEffect } from "react";
 import { signUp, logIn, logOut } from "./authService";
 import { addGame, getGames } from "./firestoreService";
 import { auth } from "./firebase";
-import 'bulma/css/bulma.min.css';
+import "bulma/css/bulma.min.css";
 
-import Header from './components/Header'
-import Navigation from './components/Navigation'
-import Login from './components/Login'
-import AddGame from './components/AddGame'
-import GamesList from './components/GamesList'
-
+import Header from "./components/Header";
+import Navigation from "./components/Navigation";
+import Login from "./components/Login";
+import AddGame from "./components/AddGame";
+import GamesList from "./components/GamesList";
 
 function App() {
   const [email, setEmail] = useState("");
@@ -21,7 +20,7 @@ function App() {
   const [condition, setCondition] = useState("CIB");
   const [estimatedValue, setEstimatedValue] = useState("");
 
-  const [page, setPage] = useState('home')
+  const [page, setPage] = useState("home");
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
@@ -50,14 +49,14 @@ function App() {
   };
 
   const handleLogOut = async () => {
-    console.log('test')
     await logOut();
     setUser(null);
     setGames([]);
   };
 
   const handleAddGame = async () => {
-    if (!gameTitle || !consoleName || !estimatedValue) return alert("Fill in all fields!");
+    if (!gameTitle || !consoleName || !estimatedValue)
+      return alert("Fill in all fields!");
     try {
       await addGame({
         title: gameTitle,
@@ -85,16 +84,39 @@ function App() {
     }
   };
 
+  // Wrapper for centering logged-in pages
+  const CenteredPage = ({ children }) => (
+    <div
+      className="section is-flex is-justify-content-center"
+      style={{ minHeight: "80vh" }}
+    >
+      <div style={{ maxWidth: "800px", width: "100%", margin: "0 auto"}}>
+        {children}
+      </div>
+    </div>
+  );
+
   return (
     <section className="section">
-      <Header user={user} onLogOut={handleLogOut} setPage={setPage}/>
-
-      <Navigation />
+      <Header user={user} onLogOut={handleLogOut} setPage={setPage} />
+      <Navigation setPage={setPage} />
 
       {user ? (
         <div className="section">
-          {page === 'home' && (
-            <div className="user-screen">
+          {page === "home" && (
+            // <CenteredPage>
+              <GamesList games={games} />
+            // </CenteredPage>
+          )}
+
+          {page === "user" && (
+            <CenteredPage>
+              <p>User page</p>
+            </CenteredPage>
+          )}
+
+          {page === "add-game" && (
+            <CenteredPage>
               <AddGame
                 gameTitle={gameTitle}
                 setGameTitle={setGameTitle}
@@ -106,28 +128,32 @@ function App() {
                 setEstimatedValue={setEstimatedValue}
                 handleAddGame={handleAddGame}
               />
-          
+            </CenteredPage>
+          )}
+
+          {page === "collection" && (
+            // <CenteredPage>
               <GamesList games={games} />
-            </div>
+            // </CenteredPage>
           )}
-
-          {page === 'user' && (
-            <>
-              <p>user page</p>
-            </>
-          )}
-                    
-
         </div>
       ) : (
-        <Login 
-          onLogin={handleLogIn} 
-          onSignUp={handleSignUp} 
-          setPassword={setPassword} 
-          password={password} 
-          setEmail={setEmail} 
-          email={email} 
-        />
+        // Full-page centered login
+        <div
+          className="section is-flex is-justify-content-center is-align-items-center"
+          style={{ minHeight: "100vh" }}
+        >
+          <div style={{ maxWidth: "400px", width: "100%", margin: "0 auto" }}>
+            <Login
+              onLogin={handleLogIn}
+              onSignUp={handleSignUp}
+              setPassword={setPassword}
+              password={password}
+              setEmail={setEmail}
+              email={email}
+            />
+          </div>
+        </div>
       )}
     </section>
   );
