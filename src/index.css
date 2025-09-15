@@ -32,9 +32,9 @@ body {
 }
 
 h1 {
-  font-size: 3.2em;
+  /* font-size: 3.2em;
   line-height: 1.1;
-  color: #ff751a;
+  color: #ff751a; */
   text-align: center;
 }
 
@@ -102,6 +102,7 @@ label {
 
 .user-console-list {
   display: flex;
+  margin-bottom: 18px;
 
   li {
     margin-right: 8px;

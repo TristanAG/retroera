@@ -34,6 +34,23 @@ const GamesList = ({ games }) => {
   return (
     <div style={{ margin: "0 auto" }}>
       <ul className="user-console-list">
+         <li>
+          {/* <p
+            className={`has-text-info ${selectedConsole === null ? "is-underlined" : ""}`}
+            onClick={() => setSelectedConsole(null)}
+            style={{ cursor: "pointer" }}
+          >
+            All Games
+          </p> */}
+          <span 
+              className={`tag is-size-6 ${selectedConsole === null ? "has-background-link-90" : "is-light"}`}
+              onClick={() => setSelectedConsole(null)}
+              style={{ cursor: "pointer" }}
+            >
+              All Games
+            </span>
+
+        </li>
         {consoles.map((consoleName) => (
           <li key={consoleName} className={consoleName.split(' ').join('-').toLowerCase()}>
             {/* <p
@@ -45,7 +62,7 @@ const GamesList = ({ games }) => {
             </p> */}
             
             <span 
-              className={`tag ${selectedConsole === consoleName ? "is-info" : "is-light"}`}
+              className={`tag is-size-6 ${selectedConsole === consoleName ? "is-info" : "is-light"}`}
               onClick={() => setSelectedConsole(consoleName)}
               style={{ cursor: "pointer" }}
             >
@@ -54,50 +71,94 @@ const GamesList = ({ games }) => {
 
           </li>
         ))}
-        <li>
-          {/* <p
-            className={`has-text-info ${selectedConsole === null ? "is-underlined" : ""}`}
-            onClick={() => setSelectedConsole(null)}
-            style={{ cursor: "pointer" }}
-          >
-            All Games
-          </p> */}
-          <span 
-              className={`tag ${selectedConsole === null ? "is-info" : "is-light"}`}
-              onClick={() => setSelectedConsole(null)}
-              style={{ cursor: "pointer" }}
-            >
-              All Games
-            </span>
-
-        </li>
+       
       </ul>
 
       {selectedConsole === null ? (
         <>
           <h3>Your Games:</h3>
           <p><strong>Total Value:</strong> ${totalValueAllGames.toFixed(2)}</p>
-          <ul>
-            {games.map((game) => (
-              <li key={game.id}>
-                {game.title} - {game.console} ({game.condition}) - ${game.estimated_value}
-              </li>
-            ))}
-          </ul>
+          <table class="table is-striped is-fullwidth">
+            <thead>
+              <tr>
+                <th>Game</th>
+                <th>Condition</th>
+                <th>Value</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {games.map((game) => (
+                <tr key={game.id}>
+                  <td>{game.title}</td> 
+                  <td>({game.condition})</td>
+                  <td className="has-text-success-65 has-text-weight-semibold">${game.estimated_value}</td>
+                </tr>
+              ))}
+            </tbody>
+
+          </table>
         </>
       ) : (
         <>
           <h4>Games for {selectedConsole}:</h4>
           <p><strong>Total Value:</strong> ${totalValueSelectedConsole.toFixed(2)}</p>
-          <ul>
-            {selectedConsoleGames.map((game) => (
-              <li key={game.id}>
-                {game.title} ({game.condition}) - ${game.estimated_value}
-              </li>
-            ))}
-          </ul>
+          <table class="table is-striped is-fullwidth">
+            <thead>
+              <tr>
+                <th>Game</th>
+                <th>Condition</th>
+                <th>Value</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {selectedConsoleGames.map((game) => (
+                <tr key={game.id}>
+                  <td>{game.title}</td> 
+                  <td>({game.condition})</td>
+                  <td>${game.estimated_value}</td>
+                </tr>
+              ))}
+            </tbody>
+
+          </table>
+
+
+         
         </>
       )}
+
+
+
+
+
+    {/* <table class="table is-striped is-fullwidth">
+      <thead>
+        <tr>
+          <th>Game</th>
+          <th>Condition</th>
+          <th>Value</th>
+        </tr>
+      </thead>
+      
+      <tbody>
+        <tr>
+          <td>Example Title 1</td>
+          <td>New</td>
+          <td>$100</td>
+        </tr>    
+      </tbody>
+    </table> */}
+
+
+
+
+
+
+
+
+      
     </div>
   );
 };

@@ -99,7 +99,11 @@ function App() {
   return (
     <section className="section">
       <Header user={user} onLogOut={handleLogOut} setPage={setPage} />
-      <Navigation setPage={setPage} user={user} onLogOut={handleLogOut} />
+
+      {user && (
+        <Navigation setPage={setPage} user={user} onLogOut={handleLogOut} />
+      )}
+      {/* <Navigation setPage={setPage} user={user} onLogOut={handleLogOut} /> */}
 
       {user ? (
         <div className="section">
@@ -143,7 +147,10 @@ function App() {
           className="section is-flex is-justify-content-center is-align-items-center"
           style={{ minHeight: "100vh" }}
         >
+          
           <div style={{ maxWidth: "400px", width: "100%", margin: "0 auto" }}>
+            <h1 className="is-size-1">RetroEra</h1>
+            <p style={{'textAlign':'center'}}>Stay Retro.</p>
             <Login
               onLogin={handleLogIn}
               onSignUp={handleSignUp}
