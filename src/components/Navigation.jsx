@@ -1,4 +1,6 @@
-const Navigation = ({ setPage }) => {
+import { use } from "react"
+
+const Navigation = ({ user, onLogOut, setPage }) => {
 
 
     function handleAddGameClick() {
@@ -68,14 +70,27 @@ const Navigation = ({ setPage }) => {
 
                 <div class="navbar-end">
                     <div class="navbar-item">
-                        <div class="buttons">
-                            <a class="button is-primary">
-                                <strong>Sign up</strong>
-                            </a>
-                            <a class="button is-light">
-                                Log in
-                            </a>
-                        </div>
+                        {user && (
+                            <>
+                                <small>(profile link)</small>
+                                {user.email}
+                                <button className="button is-light" onClick={onLogOut}>Log Out</button>
+                                
+                            </>
+                        )
+                        //  : (
+                        //     <div class="buttons">
+                                
+                        //         <a class="button is-primary">
+                        //             <strong>Sign up</strong>
+                        //         </a>
+                        //         <a class="button is-light">
+                        //             Log in
+                        //         </a>
+                        //     </div>
+                        // )
+                        }
+                        
                     </div>
                 </div>
             </div>

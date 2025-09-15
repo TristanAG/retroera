@@ -99,7 +99,7 @@ function App() {
   return (
     <section className="section">
       <Header user={user} onLogOut={handleLogOut} setPage={setPage} />
-      <Navigation setPage={setPage} />
+      <Navigation setPage={setPage} user={user} onLogOut={handleLogOut} />
 
       {user ? (
         <div className="section">
