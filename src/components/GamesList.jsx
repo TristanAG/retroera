@@ -76,7 +76,6 @@ const GamesList = ({ games }) => {
 
       {selectedConsole === null ? (
         <>
-          <h3>Your Games:</h3>
           <p><strong>Total Value:</strong> ${totalValueAllGames.toFixed(2)}</p>
           <table class="table is-striped is-fullwidth">
             <thead>
@@ -91,7 +90,7 @@ const GamesList = ({ games }) => {
               {games.map((game) => (
                 <tr key={game.id}>
                   <td>{game.title}</td> 
-                  <td>({game.condition})</td>
+                  <td>{game.condition}</td>
                   <td className="has-text-success-65 has-text-weight-semibold">${game.estimated_value}</td>
                 </tr>
               ))}
@@ -101,8 +100,8 @@ const GamesList = ({ games }) => {
         </>
       ) : (
         <>
-          <h4>Games for {selectedConsole}:</h4>
-          <p><strong>Total Value:</strong> ${totalValueSelectedConsole.toFixed(2)}</p>
+          <h4 className="is-size-3">{selectedConsole}</h4>
+          <p className="is-size-6">Total Value: <span className="has-text-success-65 has-text-weight-semibold">${totalValueSelectedConsole.toFixed(2)}</span></p>
           <table class="table is-striped is-fullwidth">
             <thead>
               <tr>
@@ -116,7 +115,7 @@ const GamesList = ({ games }) => {
               {selectedConsoleGames.map((game) => (
                 <tr key={game.id}>
                   <td>{game.title}</td> 
-                  <td>({game.condition})</td>
+                  <td>{game.condition}</td>
                   <td>${game.estimated_value}</td>
                 </tr>
               ))}
