@@ -10,6 +10,18 @@ import Login from "./components/Login";
 import AddGame from "./components/AddGame";
 import GamesList from "./components/GamesList";
 
+// ✅ Moved outside App so it doesn't remount on every render
+const CenteredPage = ({ children }) => (
+  <div
+    className="section is-flex is-justify-content-center"
+    style={{ minHeight: "80vh" }}
+  >
+    <div style={{ maxWidth: "800px", width: "100%", margin: "0 auto" }}>
+      {children}
+    </div>
+  </div>
+);
+
 function App() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -84,18 +96,6 @@ function App() {
     }
   };
 
-  // Wrapper for centering logged-in pages
-  const CenteredPage = ({ children }) => (
-    <div
-      className="section is-flex is-justify-content-center"
-      style={{ minHeight: "80vh" }}
-    >
-      <div style={{ maxWidth: "800px", width: "100%", margin: "0 auto"}}>
-        {children}
-      </div>
-    </div>
-  );
-
   return (
     <section className="section">
       <Header user={user} onLogOut={handleLogOut} setPage={setPage} />
@@ -103,15 +103,10 @@ function App() {
       {user && (
         <Navigation setPage={setPage} user={user} onLogOut={handleLogOut} />
       )}
-      {/* <Navigation setPage={setPage} user={user} onLogOut={handleLogOut} /> */}
 
       {user ? (
         <div className="section">
-          {page === "home" && (
-            // <CenteredPage>
-              <GamesList games={games} />
-            // </CenteredPage>
-          )}
+          {page === "home" && <GamesList games={games} />}
 
           {page === "user" && (
             <CenteredPage>
@@ -135,11 +130,7 @@ function App() {
             </CenteredPage>
           )}
 
-          {page === "collection" && (
-            // <CenteredPage>
-              <GamesList games={games} />
-            // </CenteredPage>
-          )}
+          {page === "collection" && <GamesList games={games} />}
         </div>
       ) : (
         // Full-page centered login
@@ -147,10 +138,9 @@ function App() {
           className="section is-flex is-justify-content-center is-align-items-center"
           style={{ minHeight: "100vh" }}
         >
-          
           <div style={{ maxWidth: "400px", width: "100%", margin: "0 auto" }}>
-            <h1 className="is-size-1">RetroEra</h1>
-            <p style={{'textAlign':'center'}}>Stay Retro.</p>
+            <h1 className="is-size-1 has-text-link-90">RetroEra</h1>
+            <p style={{ textAlign: "center" }}>Stay Retro.</p>
             <Login
               onLogin={handleLogIn}
               onSignUp={handleSignUp}

@@ -62,7 +62,7 @@ const GamesList = ({ games }) => {
             </p> */}
             
             <span 
-              className={`tag is-size-6 ${selectedConsole === consoleName ? "is-info" : "is-light"}`}
+              className={`tag is-size-6 ${selectedConsole === consoleName ? "has-background-link-90" : "is-light"}`}
               onClick={() => setSelectedConsole(consoleName)}
               style={{ cursor: "pointer" }}
             >
