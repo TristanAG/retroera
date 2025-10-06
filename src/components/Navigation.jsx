@@ -39,10 +39,10 @@ const Navigation = ({ user, onLogOut, setPage }) => {
                     </a> */}
 
                     <a class="navbar-item" onClick={handleAddGameClick}>
-                        Add Game
+                        + add game
                     </a>
 
-                    <div class="navbar-item has-dropdown is-hoverable">
+                    {/* <div class="navbar-item has-dropdown is-hoverable">
                         <a class="navbar-link" onClick={handleCollectionClick}>
                             Collection
                         </a>
@@ -51,7 +51,7 @@ const Navigation = ({ user, onLogOut, setPage }) => {
                             <a class="navbar-item">
                                 PS2
                             </a>
-                            {/* use is-selected when you want hover to persist */}
+                           
                             <a class="navbar-item">
                                 Game Boy
                             </a>
@@ -65,7 +65,7 @@ const Navigation = ({ user, onLogOut, setPage }) => {
                                 Report an issue
                             </a>
                         </div>
-                    </div>
+                    </div> */}
                 </div>
 
                 <div class="navbar-end">

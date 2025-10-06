@@ -33,6 +33,7 @@ const GamesList = ({ games }) => {
 
   return (
     <div style={{ margin: "0 auto" }}>
+      
       <ul className="user-console-list">
          <li>
           {/* <p
@@ -73,6 +74,12 @@ const GamesList = ({ games }) => {
         ))}
        
       </ul>
+
+      <input
+  class="input is-info"
+  type="text"
+  placeholder="Info input"
+/>
 
       {selectedConsole === null ? (
         <>
