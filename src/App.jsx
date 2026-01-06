@@ -9,6 +9,7 @@ import Navigation from "./components/Navigation";
 import Login from "./components/Login";
 import AddGame from "./components/AddGame";
 import GamesList from "./components/GamesList";
+import Explore from "./components/Explore";
 
 // ✅ Moved outside App so it doesn't remount on every render
 const CenteredPage = ({ children }) => (
@@ -131,6 +132,9 @@ function App() {
           )}
 
           {page === "collection" && <GamesList games={games} />}
+
+          {page === "explore" && <Explore />}
+          
         </div>
       ) : (
         // Full-page centered login

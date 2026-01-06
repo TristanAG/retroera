@@ -12,6 +12,10 @@ const Navigation = ({ user, onLogOut, setPage }) => {
         setPage('collection')
     }
 
+    function handleExploreClick() {
+        setPage('explore')
+    }
+
 
     return (
         <nav class="navbar" role="navigation" aria-label="main navigation">
@@ -41,6 +45,12 @@ const Navigation = ({ user, onLogOut, setPage }) => {
                     <a class="navbar-item" onClick={handleAddGameClick}>
                         + add game
                     </a>
+
+                    <a class="navbar-item" onClick={handleExploreClick}>
+                        + explore
+                    </a>
+
+
 
                     {/* <div class="navbar-item has-dropdown is-hoverable">
                         <a class="navbar-link" onClick={handleCollectionClick}>
