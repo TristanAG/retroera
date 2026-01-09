@@ -11,6 +11,8 @@ import AddGame from "./components/AddGame";
 import GamesList from "./components/GamesList";
 import Explore from "./components/Explore";
 
+import DreamcastGames from "./components/DreamcastGames";
+
 // ✅ Moved outside App so it doesn't remount on every render
 const CenteredPage = ({ children }) => (
   <div
@@ -156,6 +158,7 @@ function App() {
           </div>
         </div>
       )}
+      <DreamcastGames />
     </section>
   );
 }
