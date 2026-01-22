@@ -10,7 +10,7 @@ import Login from "./components/Login";
 import AddGame from "./components/AddGame";
 import GamesList from "./components/GamesList";
 import Explore from "./components/Explore";
-
+import Game from "./components/Game";
 import DreamcastGames from "./components/DreamcastGames";
 
 // ✅ Moved outside App so it doesn't remount on every render
@@ -30,16 +30,13 @@ function App() {
   const [password, setPassword] = useState("");
   const [user, setUser] = useState(null);
   const [games, setGames] = useState([]);
-
   const [gameTitle, setGameTitle] = useState("");
   const [consoleName, setConsoleName] = useState("");
   const [condition, setCondition] = useState("CIB");
   const [estimatedValue, setEstimatedValue] = useState("");
 
   const [page, setPage] = useState("home");
-
-  // ✅ Selected game for Game view
-  const [selectedGame, setSelectedGame] = useState(null);
+  const [selectedGameId, setSelectedGameId] = useState(null);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
@@ -71,8 +68,6 @@ function App() {
     await logOut();
     setUser(null);
     setGames([]);
-    setSelectedGame(null);
-    setPage("home");
   };
 
   const handleAddGame = async () => {
@@ -105,6 +100,12 @@ function App() {
     }
   };
 
+  // Callback for GamesList when user clicks a game
+  const handleSelectGame = (igdbId) => {
+    setSelectedGameId(igdbId);
+    setPage("game");
+  };
+
   return (
     <section className="section">
       <Header user={user} onLogOut={handleLogOut} setPage={setPage} />
@@ -116,52 +117,20 @@ function App() {
       {user ? (
         <div className="section">
           {page === "home" && (
-            <GamesList
-              games={games}
-              setPage={setPage}
-              setSelectedGame={setSelectedGame}
-            />
+            <GamesList games={games} onSelectGame={handleSelectGame} />
           )}
 
           {page === "collection" && (
-            <GamesList
-              games={games}
-              setPage={setPage}
-              setSelectedGame={setSelectedGame}
-            />
+            <GamesList games={games} onSelectGame={handleSelectGame} />
           )}
 
-          {page === "game" && selectedGame && (
+          {page === "game" && (
             <CenteredPage>
-              <div>
-                <p className="is-size-7 has-text-grey">Game Page (placeholder)</p>
-
-                <h2 className="is-size-2 has-text-weight-bold">
-                  {selectedGame.title}
-                </h2>
-
-                <p className="is-size-6">
-                  <strong>Console:</strong> {selectedGame.console}
-                </p>
-
-                <p className="is-size-6">
-                  <strong>Condition:</strong> {selectedGame.condition}
-                </p>
-
-                <p className="is-size-6">
-                  <strong>Estimated Value:</strong>{" "}
-                  <span className="has-text-success-65">
-                    ${selectedGame.estimated_value}
-                  </span>
-                </p>
-
-                <button
-                  className="button is-link is-light mt-4"
-                  onClick={() => setPage("collection")}
-                >
-                  ← Back to Collection
-                </button>
-              </div>
+              {selectedGameId ? (
+                <Game igdbId={selectedGameId} />
+              ) : (
+                <p>Game data not available. Please select a valid game.</p>
+              )}
             </CenteredPage>
           )}
 
@@ -208,8 +177,6 @@ function App() {
           </div>
         </div>
       )}
-
-      <DreamcastGames />
     </section>
   );
 }

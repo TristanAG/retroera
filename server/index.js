@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
+import fetch from "node-fetch";
 
 dotenv.config();
 
@@ -41,29 +42,63 @@ async function getTwitchToken() {
   return cachedToken;
 }
 
-// Proxy endpoint for IGDB
+// Proxy endpoint for IGDB search (existing)
 app.post("/api/igdb", async (req, res) => {
   try {
     const token = await getTwitchToken();
 
-    const igdbResponse = await fetch(
-      "https://api.igdb.com/v4/games",
-      {
-        method: "POST",
-        headers: {
-          "Client-ID": process.env.TWITCH_CLIENT_ID,
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "text/plain",
-        },
-        body: req.body.query,
-      }
-    );
+    const igdbResponse = await fetch("https://api.igdb.com/v4/games", {
+      method: "POST",
+      headers: {
+        "Client-ID": process.env.TWITCH_CLIENT_ID,
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "text/plain",
+      },
+      body: req.body.query,
+    });
 
     const data = await igdbResponse.json();
     res.json(data);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "IGDB request failed" });
+  }
+});
+
+// -------------------------
+// New route: GET game by IGDB ID
+// -------------------------
+app.get("/api/igdb/game/:id", async (req, res) => {
+  const { id } = req.params;
+
+  if (!id) return res.status(400).json({ error: "Missing game ID" });
+
+  try {
+    const token = await getTwitchToken();
+
+    const igdbResponse = await fetch("https://api.igdb.com/v4/games", {
+      method: "POST",
+      headers: {
+        "Client-ID": process.env.TWITCH_CLIENT_ID,
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "text/plain",
+      },
+      body: `
+        fields id,name,summary,first_release_date,platforms.name,involved_companies.company.name,screenshots.url,cover.url;
+        where id = ${id};
+      `,
+    });
+
+    const data = await igdbResponse.json();
+
+    if (!data || data.length === 0) {
+      return res.status(404).json({ error: "Game not found" });
+    }
+
+    res.json(data[0]);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to fetch game data" });
   }
 });
 
