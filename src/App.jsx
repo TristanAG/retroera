@@ -30,12 +30,16 @@ function App() {
   const [password, setPassword] = useState("");
   const [user, setUser] = useState(null);
   const [games, setGames] = useState([]);
+
   const [gameTitle, setGameTitle] = useState("");
   const [consoleName, setConsoleName] = useState("");
   const [condition, setCondition] = useState("CIB");
   const [estimatedValue, setEstimatedValue] = useState("");
 
   const [page, setPage] = useState("home");
+
+  // ✅ Selected game for Game view
+  const [selectedGame, setSelectedGame] = useState(null);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
@@ -67,6 +71,8 @@ function App() {
     await logOut();
     setUser(null);
     setGames([]);
+    setSelectedGame(null);
+    setPage("home");
   };
 
   const handleAddGame = async () => {
@@ -109,7 +115,55 @@ function App() {
 
       {user ? (
         <div className="section">
-          {page === "home" && <GamesList games={games} />}
+          {page === "home" && (
+            <GamesList
+              games={games}
+              setPage={setPage}
+              setSelectedGame={setSelectedGame}
+            />
+          )}
+
+          {page === "collection" && (
+            <GamesList
+              games={games}
+              setPage={setPage}
+              setSelectedGame={setSelectedGame}
+            />
+          )}
+
+          {page === "game" && selectedGame && (
+            <CenteredPage>
+              <div>
+                <p className="is-size-7 has-text-grey">Game Page (placeholder)</p>
+
+                <h2 className="is-size-2 has-text-weight-bold">
+                  {selectedGame.title}
+                </h2>
+
+                <p className="is-size-6">
+                  <strong>Console:</strong> {selectedGame.console}
+                </p>
+
+                <p className="is-size-6">
+                  <strong>Condition:</strong> {selectedGame.condition}
+                </p>
+
+                <p className="is-size-6">
+                  <strong>Estimated Value:</strong>{" "}
+                  <span className="has-text-success-65">
+                    ${selectedGame.estimated_value}
+                  </span>
+                </p>
+
+                <button
+                  className="button is-link is-light mt-4"
+                  onClick={() => setPage("collection")}
+                >
+                  ← Back to Collection
+                </button>
+              </div>
+            </CenteredPage>
+          )}
 
           {page === "user" && (
             <CenteredPage>
@@ -133,13 +187,9 @@ function App() {
             </CenteredPage>
           )}
 
-          {page === "collection" && <GamesList games={games} />}
-
           {page === "explore" && <Explore />}
-          
         </div>
       ) : (
-        // Full-page centered login
         <div
           className="section is-flex is-justify-content-center is-align-items-center"
           style={{ minHeight: "100vh" }}
@@ -158,6 +208,7 @@ function App() {
           </div>
         </div>
       )}
+
       <DreamcastGames />
     </section>
   );
