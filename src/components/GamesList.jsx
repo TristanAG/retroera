@@ -139,29 +139,6 @@ const GamesList = ({ games }) => {
 
 
 
-    {/* <table class="table is-striped is-fullwidth">
-      <thead>
-        <tr>
-          <th>Game</th>
-          <th>Condition</th>
-          <th>Value</th>
-        </tr>
-      </thead>
-      
-      <tbody>
-        <tr>
-          <td>Example Title 1</td>
-          <td>New</td>
-          <td>$100</td>
-        </tr>    
-      </tbody>
-    </table> */}
-
-
-
-
-
-
 
 
       
