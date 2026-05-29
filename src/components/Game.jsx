@@ -16,7 +16,7 @@ const Game = ({ igdbId, title, onBack }) => {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`http://localhost:4000/api/igdb/game/${igdbId}`);
+        const res = await fetch(`/api/igdb/game/${igdbId}`);
         if (!res.ok) throw new Error("Failed to fetch game data");
 
         const data = await res.json();

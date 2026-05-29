@@ -13,7 +13,7 @@ RetroEra is a retro physical media social network focused on helping users catal
 - View a collection list and aggregate estimated values.
 - Filter collection by console and view console-level value totals.
 - Fetch and view IGDB-backed game details (summary, release info, companies, media).
-- Explore game discovery data via RAWG.
+- Browse IGDB game catalogs by console (28 retro platforms) with paginated explore view.
 
 ## Current Product Scope
 
@@ -22,7 +22,7 @@ RetroEra is a retro physical media social network focused on helping users catal
 - Firestore-backed collection storage under each user.
 - Real-time console and game subscription views from Firestore.
 - IGDB proxy backend (Express) with Twitch OAuth token handling.
-- RAWG API access through Vite proxy during frontend usage.
+- IGDB explore browse via the existing `/api/igdb` proxy.
 
 ### Not yet implemented
 - Buy/sell/trade marketplace workflows.

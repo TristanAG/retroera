@@ -52,6 +52,72 @@ export const CONSOLE_OPTIONS = Object.keys(CONSOLE_TO_IGDB_PLATFORM).sort((a, b)
   a.localeCompare(b)
 );
 
+export const PAGE_SIZE = 20;
+
+/** IGDB release_date_regions ids (release_dates.release_region) */
+export const EXPLORE_REGIONS = [
+  { id: 2, label: "US" },
+  { id: 1, label: "Europe" },
+  { id: 5, label: "Japan" },
+  { id: 3, label: "Australia" },
+  { id: 9, label: "Korea" },
+  { id: 10, label: "Brazil" },
+  { id: 8, label: "Worldwide" },
+];
+
+export const DEFAULT_EXPLORE_REGION_IDS = [2];
+
+function buildRegionFilter(regionIds) {
+  const ids =
+    regionIds?.length > 0 ? regionIds : DEFAULT_EXPLORE_REGION_IDS;
+  if (ids.length === 1) return `release_dates.release_region = ${ids[0]}`;
+  return `release_dates.release_region = (${ids.join(",")})`;
+}
+
+export async function fetchGamesByPlatform(
+  platformId,
+  { limit = PAGE_SIZE, offset = 0, regionIds = DEFAULT_EXPLORE_REGION_IDS } = {}
+) {
+  const query = `
+    fields id,name,cover.image_id,first_release_date;
+    where platforms = ${platformId} & ${buildRegionFilter(regionIds)};
+    sort first_release_date desc;
+    limit ${limit};
+    offset ${offset};
+  `;
+
+  const res = await fetch(IGDB_API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ query }),
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch IGDB games");
+  }
+
+  const data = await res.json();
+
+  if (!Array.isArray(data)) {
+    throw new Error("Unexpected IGDB response");
+  }
+
+  if (data.length > 0 && data[0].status >= 400) {
+    throw new Error(data[0].title || "IGDB request failed");
+  }
+
+  return data
+    .filter((game) => game.id != null && game.name)
+    .map((game) => ({
+      id: String(game.id),
+      name: game.name,
+      releaseYear: game.first_release_date
+        ? new Date(game.first_release_date * 1000).getFullYear()
+        : null,
+      coverUrl: igdbImageUrl(game.cover, "cover_big"),
+    }));
+}
+
 function escapeIgdbSearchTerm(title) {
   return title.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
 }

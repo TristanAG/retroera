@@ -10,11 +10,6 @@ export default defineConfig({
         target: 'http://localhost:4000',
         changeOrigin: true,
       },
-      '/rawg': {
-        target: 'https://api.rawg.io',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/rawg/, ''),
-      },
     },
   },
 })
