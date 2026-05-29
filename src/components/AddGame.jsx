@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { searchGamesByTitle } from "../igdbService";
+import { CONSOLE_OPTIONS, searchGamesByTitle } from "../igdbService";
 
 function AddGame({
   gameTitle,
@@ -107,13 +107,11 @@ function AddGame({
             className="input"
           >
             <option value="">Select Console</option>
-            <option value="Playstation">Playstation</option>
-            <option value="Playstation 2">Playstation 2</option>
-            <option value="GameCube">GameCube</option>
-            <option value="Game Boy">Game Boy</option>
-            <option value="Game Boy Color">Game Boy Color</option>
-            <option value="Game Boy Advance">Game Boy Advance</option>
-            <option value="Dreamcast">Dreamcast</option>
+            {CONSOLE_OPTIONS.map((name) => (
+              <option key={name} value={name}>
+                {name}
+              </option>
+            ))}
           </select>
         </div>
         {showConsoleHint && (

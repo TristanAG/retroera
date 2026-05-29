@@ -18,14 +18,39 @@ export function igdbImageUrl(assetOrId, size = "1080p") {
 }
 
 export const CONSOLE_TO_IGDB_PLATFORM = {
+  "3DO": 50,
+  "Atari Jaguar": 62,
+  "Atari Lynx": 61,
+  Dreamcast: 23,
+  "Game Boy": 33,
+  "Game Boy Advance": 24,
+  "Game Boy Color": 22,
+  GameCube: 21,
+  "Neo Geo AES": 80,
+  "Neo Geo CD": 136,
+  "Neo Geo Pocket": 119,
+  "Neo Geo Pocket Color": 120,
+  "Nintendo 64": 4,
+  "Nintendo Entertainment System": 18,
+  "PC-FX": 274,
+  "Philips CD-i": 117,
   Playstation: 7,
   "Playstation 2": 8,
-  GameCube: 21,
-  "Game Boy": 33,
-  "Game Boy Color": 22,
-  "Game Boy Advance": 24,
-  Dreamcast: 23,
+  "Sega 32X": 30,
+  "Sega CD": 78,
+  "Sega Game Gear": 35,
+  "Sega Genesis": 29,
+  "Sega Saturn": 32,
+  "Super Nintendo": 19,
+  "TurboGrafx-16": 86,
+  "Virtual Boy": 87,
+  WonderSwan: 57,
+  "WonderSwan Color": 123,
 };
+
+export const CONSOLE_OPTIONS = Object.keys(CONSOLE_TO_IGDB_PLATFORM).sort((a, b) =>
+  a.localeCompare(b)
+);
 
 function escapeIgdbSearchTerm(title) {
   return title.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
