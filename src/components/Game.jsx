@@ -35,7 +35,7 @@ const Game = ({ igdbId, onBack }) => {
     setLightboxIndex(null);
   }, [igdbId]);
 
-  const screenshots =
+  const screenshotItems =
     game?.screenshots
       ?.map((s, i) => ({
         thumb: igdbImageUrl(s, "screenshot_med"),
@@ -44,16 +44,28 @@ const Game = ({ igdbId, onBack }) => {
       }))
       .filter((s) => s.thumb && s.full) ?? [];
 
+  const coverFull = game?.cover ? igdbImageUrl(game.cover, "1080p") : null;
+
+  const gallery = [
+    ...(coverFull
+      ? [{ full: coverFull, alt: `${game?.name ?? ""} cover` }]
+      : []),
+    ...screenshotItems,
+  ];
+
+  const coverIndex = coverFull ? 0 : null;
+  const screenshotThumbOffset = coverFull ? 1 : 0;
+
   useEffect(() => {
-    if (lightboxIndex === null || screenshots.length === 0) return;
+    if (lightboxIndex === null || gallery.length === 0) return;
 
     const onKeyDown = (e) => {
       if (e.key === "Escape") {
         setLightboxIndex(null);
       } else if (e.key === "ArrowLeft") {
-        setLightboxIndex((i) => (i - 1 + screenshots.length) % screenshots.length);
+        setLightboxIndex((i) => (i - 1 + gallery.length) % gallery.length);
       } else if (e.key === "ArrowRight") {
-        setLightboxIndex((i) => (i + 1) % screenshots.length);
+        setLightboxIndex((i) => (i + 1) % gallery.length);
       }
     };
 
@@ -63,61 +75,69 @@ const Game = ({ igdbId, onBack }) => {
       document.removeEventListener("keydown", onKeyDown);
       document.body.style.overflow = "";
     };
-  }, [lightboxIndex, screenshots.length]);
+  }, [lightboxIndex, gallery.length]);
 
   const goToPrev = () => {
-    setLightboxIndex((i) => (i - 1 + screenshots.length) % screenshots.length);
+    setLightboxIndex((i) => (i - 1 + gallery.length) % gallery.length);
   };
 
   const goToNext = () => {
-    setLightboxIndex((i) => (i + 1) % screenshots.length);
+    setLightboxIndex((i) => (i + 1) % gallery.length);
   };
 
   if (loading) return <p>Loading game...</p>;
   if (error) return <p>{error}</p>;
 
-  const coverSrc = igdbImageUrl(game.cover, "1080p");
-
   return (
-    <div style={{ maxWidth: "800px", margin: "0 auto" }}>
+    <div className="game-page">
       <button className="button is-small" onClick={onBack}>← Back</button>
 
-      <h2 className="title">{game.name}</h2>
-      <p><strong>Console:</strong> {game.platforms?.map(p => p.name).join(", ")}</p>
-      <p><strong>Developer:</strong> {game.involved_companies?.map(c => c.company.name).join(", ")}</p>
-      <p><strong>Release Year:</strong> {game.first_release_date ? new Date(game.first_release_date * 1000).getFullYear() : "Unknown"}</p>
-      <p><strong>Description:</strong> {game.summary || "No description available."}</p>
-
-      {coverSrc && (
-        <img
-          src={coverSrc}
-          alt={game.name}
-          style={{ width: "100%", maxWidth: "600px", marginTop: "1rem", borderRadius: "4px" }}
-        />
-      )}
-      {screenshots.length > 0 && (
-        <div className="screenshot-thumbnails">
-          {screenshots.map((s, i) => (
+      <div className={`game-layout${coverFull ? "" : " game-layout--content-only"}`}>
+        {coverFull && (
+          <div className="game-layout__media">
             <button
-              key={i}
               type="button"
-              className="screenshot-thumbnail"
-              onClick={() => setLightboxIndex(i)}
-              aria-label={`View screenshot ${i + 1}`}
+              className="game-cover-btn"
+              onClick={() => setLightboxIndex(coverIndex)}
+              aria-label={`View ${game.name} cover art`}
             >
-              <img src={s.thumb} alt={s.alt} />
+              <img className="game-cover" src={coverFull} alt={game.name} />
             </button>
-          ))}
-        </div>
-      )}
+          </div>
+        )}
 
-      {lightboxIndex !== null && screenshots[lightboxIndex] && (
+        <div className="game-layout__content">
+          <h2 className="title">{game.name}</h2>
+          <p><strong>Console:</strong> {game.platforms?.map(p => p.name).join(", ")}</p>
+          <p><strong>Developer:</strong> {game.involved_companies?.map(c => c.company.name).join(", ")}</p>
+          <p><strong>Release Year:</strong> {game.first_release_date ? new Date(game.first_release_date * 1000).getFullYear() : "Unknown"}</p>
+          <p><strong>Description:</strong> {game.summary || "No description available."}</p>
+
+          {screenshotItems.length > 0 && (
+            <div className="screenshot-thumbnails">
+              {screenshotItems.map((s, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  className="screenshot-thumbnail"
+                  onClick={() => setLightboxIndex(screenshotThumbOffset + i)}
+                  aria-label={`View screenshot ${i + 1}`}
+                >
+                  <img src={s.thumb} alt={s.alt} />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {lightboxIndex !== null && gallery[lightboxIndex] && (
         <div
           className="screenshot-lightbox"
           onClick={() => setLightboxIndex(null)}
           role="dialog"
           aria-modal="true"
-          aria-label="Screenshot viewer"
+          aria-label="Image viewer"
         >
           <button
             type="button"
@@ -128,7 +148,7 @@ const Game = ({ igdbId, onBack }) => {
             ×
           </button>
 
-          {screenshots.length > 1 && (
+          {gallery.length > 1 && (
             <button
               type="button"
               className="screenshot-lightbox__nav screenshot-lightbox__nav--prev"
@@ -136,7 +156,7 @@ const Game = ({ igdbId, onBack }) => {
                 e.stopPropagation();
                 goToPrev();
               }}
-              aria-label="Previous screenshot"
+              aria-label="Previous image"
             >
               ‹
             </button>
@@ -144,12 +164,12 @@ const Game = ({ igdbId, onBack }) => {
 
           <img
             className="screenshot-lightbox__image"
-            src={screenshots[lightboxIndex].full}
-            alt={screenshots[lightboxIndex].alt}
+            src={gallery[lightboxIndex].full}
+            alt={gallery[lightboxIndex].alt}
             onClick={(e) => e.stopPropagation()}
           />
 
-          {screenshots.length > 1 && (
+          {gallery.length > 1 && (
             <button
               type="button"
               className="screenshot-lightbox__nav screenshot-lightbox__nav--next"
@@ -157,14 +177,14 @@ const Game = ({ igdbId, onBack }) => {
                 e.stopPropagation();
                 goToNext();
               }}
-              aria-label="Next screenshot"
+              aria-label="Next image"
             >
               ›
             </button>
           )}
 
           <span className="screenshot-lightbox__counter">
-            {lightboxIndex + 1} / {screenshots.length}
+            {lightboxIndex + 1} / {gallery.length}
           </span>
         </div>
       )}

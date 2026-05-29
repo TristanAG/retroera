@@ -121,6 +121,61 @@ label {
   justify-content: space-between;
 }
 
+.game-page {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.game-layout {
+  display: grid;
+  grid-template-columns: minmax(220px, 320px) 1fr;
+  gap: 2rem;
+  margin-top: 1rem;
+  align-items: start;
+}
+
+.game-layout--content-only {
+  grid-template-columns: 1fr;
+}
+
+.game-cover-btn {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 4px;
+  background: none;
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.game-cover-btn:hover,
+.game-cover-btn:focus-visible {
+  border-color: #646cff;
+}
+
+.game-cover {
+  display: block;
+  width: 100%;
+  border-radius: 4px;
+}
+
+.game-layout__content .title {
+  margin-top: 0;
+}
+
+@media (max-width: 640px) {
+  .game-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .game-layout__media {
+    max-width: 280px;
+    margin: 0 auto;
+  }
+}
+
 .screenshot-thumbnails {
   display: flex;
   flex-wrap: wrap;

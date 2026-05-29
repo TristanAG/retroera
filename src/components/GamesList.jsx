@@ -82,7 +82,9 @@ const GamesList = ({ games, onSelectGame }) => {
 
       {selectedConsole === null ? (
         <>
-          <p><strong>Total Value:</strong> ${totalValueAllGames.toFixed(2)}</p>
+          <h3 className="is-size-4">
+            <strong>Total Value:</strong> <span class="has-text-success-65 has-text-weight-semibold">${totalValueAllGames.toFixed(2)}</span>
+          </h3>
           <table className="table is-striped is-fullwidth">
             <thead>
               <tr>

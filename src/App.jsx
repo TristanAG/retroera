@@ -38,6 +38,7 @@ function App() {
 
   const [page, setPage] = useState("home");
   const [selectedGameId, setSelectedGameId] = useState(null);
+  const [gameReturnPage, setGameReturnPage] = useState("home");
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
@@ -104,10 +105,15 @@ function App() {
     }
   };
 
-  // Callback for GamesList when user clicks a game
   const handleSelectGame = (igdbId) => {
+    setGameReturnPage(page);
     setSelectedGameId(igdbId);
     setPage("game");
+  };
+
+  const handleBackFromGame = () => {
+    setSelectedGameId(null);
+    setPage(gameReturnPage);
   };
 
   return (
@@ -131,7 +137,7 @@ function App() {
           {page === "game" && (
             <CenteredPage>
               {selectedGameId ? (
-                <Game igdbId={selectedGameId} />
+                <Game igdbId={selectedGameId} onBack={handleBackFromGame} />
               ) : (
                 <p>Game data not available. Please select a valid game.</p>
               )}
