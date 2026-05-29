@@ -84,7 +84,7 @@ app.get("/api/igdb/game/:id", async (req, res) => {
         "Content-Type": "text/plain",
       },
       body: `
-        fields id,name,summary,first_release_date,platforms.name,involved_companies.company.name,screenshots.url,cover.url;
+        fields id,name,summary,first_release_date,platforms.name,involved_companies.company.name,screenshots.image_id,screenshots.url,cover.image_id,cover.url;
         where id = ${id};
       `,
     });

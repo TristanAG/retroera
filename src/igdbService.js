@@ -1,5 +1,22 @@
 const IGDB_API_URL = "/api/igdb";
 
+function extractImageId(asset) {
+  if (!asset) return null;
+  if (typeof asset === "string") return asset;
+  if (asset.image_id) return asset.image_id;
+  if (asset.url) {
+    const match = asset.url.match(/\/([^/]+)\.(jpg|png)$/i);
+    return match?.[1] ?? null;
+  }
+  return null;
+}
+
+export function igdbImageUrl(assetOrId, size = "1080p") {
+  const imageId = extractImageId(assetOrId);
+  if (!imageId) return null;
+  return `https://images.igdb.com/igdb/image/upload/t_${size}/${imageId}.jpg`;
+}
+
 export const CONSOLE_TO_IGDB_PLATFORM = {
   Playstation: 7,
   "Playstation 2": 8,
