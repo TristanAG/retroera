@@ -34,6 +34,7 @@ function App() {
   const [consoleName, setConsoleName] = useState("");
   const [condition, setCondition] = useState("CIB");
   const [estimatedValue, setEstimatedValue] = useState("");
+  const [igdbId, setIgdbId] = useState("");
 
   const [page, setPage] = useState("home");
   const [selectedGameId, setSelectedGameId] = useState(null);
@@ -73,18 +74,21 @@ function App() {
   const handleAddGame = async () => {
     if (!gameTitle || !consoleName || !estimatedValue)
       return alert("Fill in all fields!");
+    if (!igdbId) return;
     try {
       await addGame({
         title: gameTitle,
         console: consoleName,
         condition,
         estimated_value: parseFloat(estimatedValue),
+        igdb_id: igdbId,
         userId: user.uid,
       });
       setGameTitle("");
       setConsoleName("");
       setCondition("CIB");
       setEstimatedValue("");
+      setIgdbId("");
       fetchGames();
     } catch (error) {
       alert(error.message);
@@ -151,6 +155,8 @@ function App() {
                 setCondition={setCondition}
                 estimatedValue={estimatedValue}
                 setEstimatedValue={setEstimatedValue}
+                igdbId={igdbId}
+                setIgdbId={setIgdbId}
                 handleAddGame={handleAddGame}
               />
             </CenteredPage>

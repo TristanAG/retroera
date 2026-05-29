@@ -91,6 +91,11 @@ button:focus-visible {
   margin: 0 auto;
 }
 
+.add-form .add-form-dropdown {
+  max-height: 240px;
+  overflow-y: auto;
+}
+
 label {
   text-align: left;
 }

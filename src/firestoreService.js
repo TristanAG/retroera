@@ -22,6 +22,7 @@ export const addGame = async (game) => {
       console: game.console,
       condition: game.condition,
       estimated_value: game.estimated_value,
+      igdb_id: String(game.igdb_id),
       userId: user.uid,
     });
 
@@ -31,6 +32,7 @@ export const addGame = async (game) => {
       console: game.console,
       condition: game.condition,
       estimated_value: game.estimated_value,
+      igdb_id: String(game.igdb_id),
       userId: user.uid,
     });
 
