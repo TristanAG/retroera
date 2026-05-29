@@ -28,6 +28,13 @@ const GamesList = ({ games, onSelectGame }) => {
     0
   );
 
+  const renderTotalValue = (total, inline = false) => (
+    <h3 className={`is-size-4 ${inline ? "mb-0" : "has-text-right mb-4"}`}>
+      <strong>Total Value:</strong>{" "}
+      <span className="has-text-success-65 has-text-weight-semibold">${total.toFixed(2)}</span>
+    </h3>
+  );
+
   // Helper: Render game row
   const renderGameRow = (game) => (
     <tr
@@ -78,13 +85,11 @@ const GamesList = ({ games, onSelectGame }) => {
         ))}
       </ul>
 
-      <input className="input is-info" type="text" placeholder="Info input" />
+      {/* <input className="input is-info" type="text" placeholder="Info input" /> */}
 
       {selectedConsole === null ? (
         <>
-          <h3 className="is-size-4">
-            <strong>Total Value:</strong> <span class="has-text-success-65 has-text-weight-semibold">${totalValueAllGames.toFixed(2)}</span>
-          </h3>
+          {renderTotalValue(totalValueAllGames)}
           <table className="table is-striped is-fullwidth">
             <thead>
               <tr>
@@ -100,10 +105,10 @@ const GamesList = ({ games, onSelectGame }) => {
         </>
       ) : (
         <>
-          <h4 className="is-size-3">{selectedConsole}</h4>
-          <p className="is-size-6">
-            Total Value: <span className="has-text-success-65 has-text-weight-semibold">${totalValueSelectedConsole.toFixed(2)}</span>
-          </p>
+          <div className="is-flex is-align-items-baseline is-justify-content-space-between mb-4">
+            <h4 className="is-size-3 mb-0">{selectedConsole}</h4>
+            {renderTotalValue(totalValueSelectedConsole, true)}
+          </div>
           <table className="table is-striped is-fullwidth">
             <thead>
               <tr>
