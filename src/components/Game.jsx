@@ -31,6 +31,48 @@ const Game = ({ igdbId, onBack }) => {
     fetchGameData();
   }, [igdbId]);
 
+  useEffect(() => {
+    setLightboxIndex(null);
+  }, [igdbId]);
+
+  const screenshots =
+    game?.screenshots
+      ?.map((s, i) => ({
+        thumb: igdbImageUrl(s, "screenshot_med"),
+        full: igdbImageUrl(s, "1080p"),
+        alt: `${game.name} screenshot ${i + 1}`,
+      }))
+      .filter((s) => s.thumb && s.full) ?? [];
+
+  useEffect(() => {
+    if (lightboxIndex === null || screenshots.length === 0) return;
+
+    const onKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setLightboxIndex(null);
+      } else if (e.key === "ArrowLeft") {
+        setLightboxIndex((i) => (i - 1 + screenshots.length) % screenshots.length);
+      } else if (e.key === "ArrowRight") {
+        setLightboxIndex((i) => (i + 1) % screenshots.length);
+      }
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = "";
+    };
+  }, [lightboxIndex, screenshots.length]);
+
+  const goToPrev = () => {
+    setLightboxIndex((i) => (i - 1 + screenshots.length) % screenshots.length);
+  };
+
+  const goToNext = () => {
+    setLightboxIndex((i) => (i + 1) % screenshots.length);
+  };
+
   if (loading) return <p>Loading game...</p>;
   if (error) return <p>{error}</p>;
 
@@ -53,20 +95,77 @@ const Game = ({ igdbId, onBack }) => {
           style={{ width: "100%", maxWidth: "600px", marginTop: "1rem", borderRadius: "4px" }}
         />
       )}
-      {game.screenshots?.length > 0 && (
-        <div style={{ display: "flex", gap: "1rem", marginTop: "1rem", overflowX: "auto" }}>
-          {game.screenshots.map((s, i) => {
-            const src = igdbImageUrl(s, "1080p");
-            if (!src) return null;
-            return (
-              <img
-                key={i}
-                src={src}
-                alt={`${game.name} screenshot ${i + 1}`}
-                style={{ maxHeight: "400px", borderRadius: "4px" }}
-              />
-            );
-          })}
+      {screenshots.length > 0 && (
+        <div className="screenshot-thumbnails">
+          {screenshots.map((s, i) => (
+            <button
+              key={i}
+              type="button"
+              className="screenshot-thumbnail"
+              onClick={() => setLightboxIndex(i)}
+              aria-label={`View screenshot ${i + 1}`}
+            >
+              <img src={s.thumb} alt={s.alt} />
+            </button>
+          ))}
+        </div>
+      )}
+
+      {lightboxIndex !== null && screenshots[lightboxIndex] && (
+        <div
+          className="screenshot-lightbox"
+          onClick={() => setLightboxIndex(null)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Screenshot viewer"
+        >
+          <button
+            type="button"
+            className="screenshot-lightbox__close"
+            onClick={() => setLightboxIndex(null)}
+            aria-label="Close"
+          >
+            ×
+          </button>
+
+          {screenshots.length > 1 && (
+            <button
+              type="button"
+              className="screenshot-lightbox__nav screenshot-lightbox__nav--prev"
+              onClick={(e) => {
+                e.stopPropagation();
+                goToPrev();
+              }}
+              aria-label="Previous screenshot"
+            >
+              ‹
+            </button>
+          )}
+
+          <img
+            className="screenshot-lightbox__image"
+            src={screenshots[lightboxIndex].full}
+            alt={screenshots[lightboxIndex].alt}
+            onClick={(e) => e.stopPropagation()}
+          />
+
+          {screenshots.length > 1 && (
+            <button
+              type="button"
+              className="screenshot-lightbox__nav screenshot-lightbox__nav--next"
+              onClick={(e) => {
+                e.stopPropagation();
+                goToNext();
+              }}
+              aria-label="Next screenshot"
+            >
+              ›
+            </button>
+          )}
+
+          <span className="screenshot-lightbox__counter">
+            {lightboxIndex + 1} / {screenshots.length}
+          </span>
         </div>
       )}
     </div>
