@@ -63,6 +63,28 @@ function Explore({ onSelectGame }) {
   const hasNextPage = games.length === PAGE_SIZE;
   const hasPrevPage = pageIndex > 0;
 
+  const paginationBar = (
+    <div className="is-flex is-align-items-center explore-pagination" style={{ gap: "12px" }}>
+      <button
+        type="button"
+        className="button is-small"
+        disabled={!hasPrevPage}
+        onClick={() => setPageIndex((p) => p - 1)}
+      >
+        Previous
+      </button>
+      <span>Page {pageIndex + 1}</span>
+      <button
+        type="button"
+        className="button is-small"
+        disabled={!hasNextPage}
+        onClick={() => setPageIndex((p) => p + 1)}
+      >
+        Next
+      </button>
+    </div>
+  );
+
   const handleConsoleClick = (consoleName) => {
     setSelectedConsole(consoleName);
     setPageIndex(0);
@@ -132,6 +154,10 @@ function Explore({ onSelectGame }) {
 
       {!loading && !error && (
         <>
+          {(games.length > 0 || hasPrevPage) && (
+            <div className="mb-4">{paginationBar}</div>
+          )}
+
           <ul style={{ listStyle: "none", padding: 0 }}>
             {games.map((game) => (
               <li
@@ -183,25 +209,9 @@ function Explore({ onSelectGame }) {
 
           {games.length === 0 && <p>No games found for this console.</p>}
 
-          <div className="is-flex is-align-items-center mt-4" style={{ gap: "12px" }}>
-            <button
-              type="button"
-              className="button is-small"
-              disabled={!hasPrevPage}
-              onClick={() => setPageIndex((p) => p - 1)}
-            >
-              Previous
-            </button>
-            <span>Page {pageIndex + 1}</span>
-            <button
-              type="button"
-              className="button is-small"
-              disabled={!hasNextPage}
-              onClick={() => setPageIndex((p) => p + 1)}
-            >
-              Next
-            </button>
-          </div>
+          {(games.length > 0 || hasPrevPage) && (
+            <div className="mt-4">{paginationBar}</div>
+          )}
         </>
       )}
     </div>
