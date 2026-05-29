@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { CONSOLE_OPTIONS, searchGamesByTitle } from "../igdbService";
+import { CONDITION_PRICE_HINTS } from "../priceChartingService";
+import PriceChartingLink from "./PriceChartingLink";
 
 function AddGame({
   gameTitle,
@@ -95,6 +97,7 @@ function AddGame({
   const showConsoleHint = !consoleName;
   const showNoResults =
     showDropdown && hasSearched && !isSearching && suggestions.length === 0 && !searchError;
+  const showPriceChartingLink = gameTitle.trim().length >= 3;
 
   return (
     <div className="add-form">
@@ -208,6 +211,14 @@ function AddGame({
             onChange={(e) => setEstimatedValue(e.target.value)}
           />
         </div>
+        {showPriceChartingLink && (
+          <PriceChartingLink title={gameTitle} className="mt-2" />
+        )}
+        {showPriceChartingLink && CONDITION_PRICE_HINTS[condition] && (
+          <p className="help">
+            For {condition}: look for the {CONDITION_PRICE_HINTS[condition]} column.
+          </p>
+        )}
       </div>
 
       <button

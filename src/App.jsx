@@ -37,7 +37,7 @@ function App() {
   const [igdbId, setIgdbId] = useState("");
 
   const [page, setPage] = useState("home");
-  const [selectedGameId, setSelectedGameId] = useState(null);
+  const [selectedGame, setSelectedGame] = useState(null);
   const [gameReturnPage, setGameReturnPage] = useState("home");
 
   useEffect(() => {
@@ -105,14 +105,14 @@ function App() {
     }
   };
 
-  const handleSelectGame = (igdbId) => {
+  const handleSelectGame = ({ igdbId, title, console: consoleName }) => {
     setGameReturnPage(page);
-    setSelectedGameId(igdbId);
+    setSelectedGame({ igdbId, title, console: consoleName });
     setPage("game");
   };
 
   const handleBackFromGame = () => {
-    setSelectedGameId(null);
+    setSelectedGame(null);
     setPage(gameReturnPage);
   };
 
@@ -136,8 +136,12 @@ function App() {
 
           {page === "game" && (
             <CenteredPage>
-              {selectedGameId ? (
-                <Game igdbId={selectedGameId} onBack={handleBackFromGame} />
+              {selectedGame ? (
+                <Game
+                  igdbId={selectedGame.igdbId}
+                  title={selectedGame.title}
+                  onBack={handleBackFromGame}
+                />
               ) : (
                 <p>Game data not available. Please select a valid game.</p>
               )}

@@ -46,7 +46,11 @@ const GamesList = ({ games, onSelectGame }) => {
           alert(`IGDB ID not available for "${game.title}". Please backfill the ID.`);
           return;
         }
-        onSelectGame(game.igdb_id.trim());
+        onSelectGame({
+          igdbId: game.igdb_id.trim(),
+          title: game.title,
+          console: game.console,
+        });
       }}
 
       style={{

@@ -1,8 +1,9 @@
 // components/Game.jsx
 import { useState, useEffect } from "react";
 import { igdbImageUrl } from "../igdbService";
+import PriceChartingLink from "./PriceChartingLink";
 
-const Game = ({ igdbId, onBack }) => {
+const Game = ({ igdbId, title, onBack }) => {
   const [game, setGame] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -108,6 +109,7 @@ const Game = ({ igdbId, onBack }) => {
 
         <div className="game-layout__content">
           <h2 className="title">{game.name}</h2>
+          <PriceChartingLink title={title ?? game.name} className="mb-4" />
           <p><strong>Console:</strong> {game.platforms?.map(p => p.name).join(", ")}</p>
           <p><strong>Developer:</strong> {game.involved_companies?.map(c => c.company.name).join(", ")}</p>
           <p><strong>Release Year:</strong> {game.first_release_date ? new Date(game.first_release_date * 1000).getFullYear() : "Unknown"}</p>
