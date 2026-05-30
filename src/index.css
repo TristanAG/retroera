@@ -202,6 +202,122 @@ label {
   }
 }
 
+.explore-search {
+  position: relative;
+}
+
+.explore-search.is-loading .explore-search__input {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cstyle%3E@keyframes spin %7B to %7B transform: rotate(360deg); %7D %7D%3C/style%3E%3Ccircle cx='12' cy='12' r='10' fill='none' stroke='%23dbdbdb' stroke-width='2'/%3E%3Cpath d='M12 2a10 10 0 0 1 10 10' fill='none' stroke='%23646cff' stroke-width='2' stroke-linecap='round'%3E%3CanimateTransform attributeName='transform' type='rotate' from='0 12 12' to='360 12 12' dur='0.8s' repeatCount='indefinite'/%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 36px center;
+  background-size: 1.25rem;
+}
+
+.explore-search__input {
+  padding-right: 2.5rem;
+}
+
+.explore-search__clear {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: #7a7a7a;
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.explore-search__clear:hover,
+.explore-search__clear:focus-visible {
+  color: inherit;
+  background: rgba(100, 108, 255, 0.12);
+}
+
+.explore-alpha-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.explore-alpha-bar__btn {
+  min-width: 2rem;
+  padding: 4px 8px;
+  border: 1px solid #dbdbdb;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.04);
+  color: inherit;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.explore-alpha-bar__btn:hover,
+.explore-alpha-bar__btn:focus-visible {
+  border-color: #646cff;
+  background: rgba(100, 108, 255, 0.12);
+}
+
+.explore-alpha-bar__btn.is-active {
+  border-color: #646cff;
+  background: rgba(100, 108, 255, 0.2);
+  font-weight: 600;
+}
+
+.explore-game-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.explore-game-list__item {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #dbdbdb;
+  cursor: pointer;
+}
+
+.explore-game-list__cover {
+  border-radius: 6px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.explore-game-list__cover--placeholder {
+  width: 64px;
+  height: 64px;
+  background: #eee;
+}
+
+@media (prefers-color-scheme: light) {
+  .explore-alpha-bar__btn {
+    background: #f5f5f5;
+    border-color: #e8e8e8;
+  }
+
+  .explore-alpha-bar__btn:hover,
+  .explore-alpha-bar__btn:focus-visible,
+  .explore-alpha-bar__btn.is-active {
+    background: #eef0ff;
+  }
+
+  .explore-game-list__cover--placeholder {
+    background: #eee;
+  }
+}
+
 .user-screen {
   display: flex;
   justify-content: space-between;

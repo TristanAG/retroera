@@ -74,14 +74,44 @@ function buildRegionFilter(regionIds) {
   return `release_dates.release_region = (${ids.join(",")})`;
 }
 
+function buildNamePrefixFilter(namePrefix) {
+  if (!namePrefix) return "";
+  if (namePrefix === "#") {
+    const digitPrefixes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(
+      (d) => `name ~ "${d}*"`
+    );
+    return ` & (${digitPrefixes.join(" | ")})`;
+  }
+  const letter = namePrefix.toUpperCase();
+  return ` & (name ~ "${letter}*" | name ~ "${letter.toLowerCase()}*")`;
+}
+
+function mapGameResult(game) {
+  return {
+    id: String(game.id),
+    name: game.name,
+    releaseYear: game.first_release_date
+      ? new Date(game.first_release_date * 1000).getFullYear()
+      : null,
+    coverUrl: igdbImageUrl(game.cover, "cover_big"),
+  };
+}
+
 export async function fetchGamesByPlatform(
   platformId,
-  { limit = PAGE_SIZE, offset = 0, regionIds = DEFAULT_EXPLORE_REGION_IDS } = {}
+  {
+    limit = PAGE_SIZE,
+    offset = 0,
+    regionIds = DEFAULT_EXPLORE_REGION_IDS,
+    namePrefix = null,
+    sort = "name asc",
+  } = {}
 ) {
+  const nameFilter = buildNamePrefixFilter(namePrefix);
   const query = `
     fields id,name,cover.image_id,first_release_date;
-    where platforms = ${platformId} & ${buildRegionFilter(regionIds)};
-    sort first_release_date desc;
+    where platforms = ${platformId} & ${buildRegionFilter(regionIds)}${nameFilter};
+    sort ${sort};
     limit ${limit};
     offset ${offset};
   `;
@@ -108,14 +138,50 @@ export async function fetchGamesByPlatform(
 
   return data
     .filter((game) => game.id != null && game.name)
-    .map((game) => ({
-      id: String(game.id),
-      name: game.name,
-      releaseYear: game.first_release_date
-        ? new Date(game.first_release_date * 1000).getFullYear()
-        : null,
-      coverUrl: igdbImageUrl(game.cover, "cover_big"),
-    }));
+    .map(mapGameResult);
+}
+
+export async function searchGamesByPlatform(
+  title,
+  platformId,
+  { limit = 50 } = {}
+) {
+  if (!platformId || !title || title.trim().length < 3) {
+    return [];
+  }
+
+  const escapedTitle = escapeIgdbSearchTerm(title.trim());
+  const query = `search "${escapedTitle}"; fields id,name,first_release_date,platforms,cover.image_id; limit ${limit};`;
+
+  const res = await fetch(IGDB_API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ query }),
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to search IGDB");
+  }
+
+  const data = await res.json();
+
+  if (!Array.isArray(data)) {
+    throw new Error("Unexpected IGDB response");
+  }
+
+  if (data.length > 0 && data[0].status >= 400) {
+    throw new Error(data[0].title || "IGDB search failed");
+  }
+
+  return data
+    .filter((game) => {
+      if (game.id == null || !game.name) return false;
+      const platforms = game.platforms ?? [];
+      return platforms.some((p) =>
+        typeof p === "number" ? p === platformId : p?.id === platformId
+      );
+    })
+    .map(mapGameResult);
 }
 
 function escapeIgdbSearchTerm(title) {
