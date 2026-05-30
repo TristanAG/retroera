@@ -141,6 +141,83 @@ export async function fetchGamesByPlatform(
     .map(mapGameResult);
 }
 
+function escapeIgdbSearchTerm(title) {
+  return title.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+}
+
+function tokenizeSearchQuery(title) {
+  return title
+    .trim()
+    .split(/\s+/)
+    .filter((word) => word.length > 0);
+}
+
+function buildWordNameFilters(title) {
+  const words = tokenizeSearchQuery(title);
+  if (words.length === 0) return null;
+  return words
+    .map((word) => `name ~ *"${escapeIgdbSearchTerm(word)}"*`)
+    .join(" & ");
+}
+
+function scoreSearchMatch(name, query) {
+  const nameLower = name.toLowerCase();
+  const queryLower = query.toLowerCase().trim();
+  const words = tokenizeSearchQuery(queryLower);
+
+  let score = 0;
+  if (nameLower === queryLower) score += 1000;
+  if (nameLower.startsWith(queryLower)) score += 500;
+  if (nameLower.includes(queryLower)) score += 300;
+
+  for (const word of words) {
+    if (nameLower.includes(word)) score += 60;
+    if (nameLower.split(/\s+/).some((part) => part.startsWith(word))) score += 30;
+  }
+
+  score -= name.length * 0.05;
+  return score;
+}
+
+function rankSearchResults(games, query) {
+  return [...games].sort((a, b) => {
+    const scoreDiff = scoreSearchMatch(b.name, query) - scoreSearchMatch(a.name, query);
+    if (scoreDiff !== 0) return scoreDiff;
+    return a.name.localeCompare(b.name);
+  });
+}
+
+function gameOnPlatform(game, platformId) {
+  const platforms = game.platforms ?? [];
+  return platforms.some((p) =>
+    typeof p === "number" ? p === platformId : p?.id === platformId
+  );
+}
+
+async function postIgdbQuery(query) {
+  const res = await fetch(IGDB_API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ query }),
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to search IGDB");
+  }
+
+  const data = await res.json();
+
+  if (!Array.isArray(data)) {
+    throw new Error("Unexpected IGDB response");
+  }
+
+  if (data.length > 0 && data[0].status >= 400) {
+    throw new Error(data[0].title || "IGDB search failed");
+  }
+
+  return data;
+}
+
 export async function searchGamesByPlatform(
   title,
   platformId,
@@ -150,42 +227,46 @@ export async function searchGamesByPlatform(
     return [];
   }
 
-  const escapedTitle = escapeIgdbSearchTerm(title.trim());
-  const query = `search "${escapedTitle}"; fields id,name,first_release_date,platforms,cover.image_id; limit ${limit};`;
+  const trimmedTitle = title.trim();
+  const wordFilters = buildWordNameFilters(trimmedTitle);
+  if (!wordFilters) return [];
 
-  const res = await fetch(IGDB_API_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ query }),
-  });
+  const escapedTitle = escapeIgdbSearchTerm(trimmedTitle);
+  const fetchLimit = Math.min(limit * 2, 100);
 
-  if (!res.ok) {
-    throw new Error("Failed to search IGDB");
+  // Platform + name filters in one where clause miss some IGDB entries (e.g. Metroid
+  // Fusion on GBA). Search with a platform filter works for similarity; name filters
+  // run without a platform constraint and are narrowed client-side.
+  const similarityQuery = `
+    search "${escapedTitle}";
+    fields id,name,first_release_date,cover.image_id,platforms;
+    where platforms = (${platformId});
+    limit ${fetchLimit};
+  `;
+  const filterQuery = `
+    fields id,name,first_release_date,cover.image_id,platforms;
+    where ${wordFilters};
+    limit ${fetchLimit};
+  `;
+
+  const [similarityResults, filterResults] = await Promise.all([
+    postIgdbQuery(similarityQuery).catch(() => []),
+    postIgdbQuery(filterQuery).catch(() => []),
+  ]);
+
+  const seen = new Set();
+  const merged = [];
+
+  for (const game of [...similarityResults, ...filterResults]) {
+    if (game.id == null || !game.name || seen.has(game.id)) continue;
+    if (!gameOnPlatform(game, platformId)) continue;
+    seen.add(game.id);
+    merged.push(game);
   }
 
-  const data = await res.json();
-
-  if (!Array.isArray(data)) {
-    throw new Error("Unexpected IGDB response");
-  }
-
-  if (data.length > 0 && data[0].status >= 400) {
-    throw new Error(data[0].title || "IGDB search failed");
-  }
-
-  return data
-    .filter((game) => {
-      if (game.id == null || !game.name) return false;
-      const platforms = game.platforms ?? [];
-      return platforms.some((p) =>
-        typeof p === "number" ? p === platformId : p?.id === platformId
-      );
-    })
+  return rankSearchResults(merged, trimmedTitle)
+    .slice(0, limit)
     .map(mapGameResult);
-}
-
-function escapeIgdbSearchTerm(title) {
-  return title.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
 }
 
 export async function searchGamesByTitle(title, consoleName) {
@@ -194,43 +275,6 @@ export async function searchGamesByTitle(title, consoleName) {
     return [];
   }
 
-  const escapedTitle = escapeIgdbSearchTerm(title.trim());
-  const query = `search "${escapedTitle}"; fields id,name,first_release_date,platforms; limit 50;`;
-
-  const res = await fetch(IGDB_API_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ query }),
-  });
-
-  if (!res.ok) {
-    throw new Error("Failed to search IGDB");
-  }
-
-  const data = await res.json();
-
-  if (!Array.isArray(data)) {
-    throw new Error("Unexpected IGDB response");
-  }
-
-  if (data.length > 0 && data[0].status >= 400) {
-    throw new Error(data[0].title || "IGDB search failed");
-  }
-
-  return data
-    .filter((game) => {
-      if (game.id == null || !game.name) return false;
-      const platforms = game.platforms ?? [];
-      return platforms.some((p) =>
-        typeof p === "number" ? p === platformId : p?.id === platformId
-      );
-    })
-    .slice(0, 8)
-    .map((game) => ({
-      id: String(game.id),
-      name: game.name,
-      releaseYear: game.first_release_date
-        ? new Date(game.first_release_date * 1000).getFullYear()
-        : null,
-    }));
+  const results = await searchGamesByPlatform(title, platformId, { limit: 8 });
+  return results.map(({ id, name, releaseYear }) => ({ id, name, releaseYear }));
 }
