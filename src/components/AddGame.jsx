@@ -123,10 +123,10 @@ function AddGame({
       </div>
 
       <div className="field">
-        <label className="label">Game Title</label>
-        <div className={`dropdown is-fullwidth ${showDropdown ? "is-active" : ""}`}>
-          <div className="dropdown-trigger is-fullwidth">
-            <div className={`control is-fullwidth ${isSearching ? "is-loading" : ""}`}>
+        <div className={`control ${isSearching ? "is-loading" : ""}`}>
+          <label className="label">Game Title</label>
+          <div className={`dropdown is-fullwidth ${showDropdown ? "is-active" : ""}`}>
+            <div className="dropdown-trigger is-fullwidth">
               <input
                 type="text"
                 placeholder="Search IGDB by game title"
@@ -141,41 +141,41 @@ function AddGame({
                 }}
               />
             </div>
-          </div>
-          {showDropdown && (suggestions.length > 0 || showNoResults || searchError) && (
-            <div className="dropdown-menu is-fullwidth" role="menu">
-              <div className="dropdown-content add-form-dropdown">
-                {searchError && (
-                  <div className="dropdown-item has-text-danger">{searchError}</div>
-                )}
-                {showNoResults && (
-                  <div className="dropdown-item has-text-grey">No IGDB matches found</div>
-                )}
-                {suggestions.map((suggestion) => (
-                  <a
-                    key={suggestion.id}
-                    className="dropdown-item"
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => handleSelectSuggestion(suggestion)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        handleSelectSuggestion(suggestion);
-                      }
-                    }}
-                  >
-                    <span>{suggestion.name}</span>
-                    {suggestion.releaseYear && (
-                      <span className="tag is-light is-size-7 ml-2">
-                        {suggestion.releaseYear}
-                      </span>
-                    )}
-                  </a>
-                ))}
+            {showDropdown && (suggestions.length > 0 || showNoResults || searchError) && (
+              <div className="dropdown-menu is-fullwidth" role="menu">
+                <div className="dropdown-content add-form-dropdown">
+                  {searchError && (
+                    <div className="dropdown-item has-text-danger">{searchError}</div>
+                  )}
+                  {showNoResults && (
+                    <div className="dropdown-item has-text-grey">No IGDB matches found</div>
+                  )}
+                  {suggestions.map((suggestion) => (
+                    <a
+                      key={suggestion.id}
+                      className="dropdown-item"
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => handleSelectSuggestion(suggestion)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          handleSelectSuggestion(suggestion);
+                        }
+                      }}
+                    >
+                      <span>{suggestion.name}</span>
+                      {suggestion.releaseYear && (
+                        <span className="tag is-light is-size-7 ml-2">
+                          {suggestion.releaseYear}
+                        </span>
+                      )}
+                    </a>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
         {igdbId && <p className="help is-success">IGDB match selected.</p>}
         {showIgdbError && (

@@ -91,6 +91,15 @@ button:focus-visible {
   margin: 0 auto;
 }
 
+.add-form .dropdown.is-fullwidth {
+  display: block;
+}
+
+.add-form .dropdown-trigger.is-fullwidth {
+  display: block;
+  width: 100%;
+}
+
 .add-form .add-form-dropdown {
   max-height: 240px;
   overflow-y: auto;
