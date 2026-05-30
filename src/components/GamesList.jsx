@@ -22,9 +22,13 @@ const GamesList = ({ games, onSelectGame }) => {
     return () => unsubscribe();
   }, [selectedConsole]);
 
-  const totalValueAllGames = games.reduce((sum, game) => sum + (parseFloat(game.estimated_value) || 0), 0);
+  const parseValue = (game) => parseFloat(game.estimated_value) || 0;
+  const sortByValueDesc = (gameList) =>
+    [...gameList].sort((a, b) => parseValue(b) - parseValue(a));
+
+  const totalValueAllGames = games.reduce((sum, game) => sum + parseValue(game), 0);
   const totalValueSelectedConsole = selectedConsoleGames.reduce(
-    (sum, game) => sum + (parseFloat(game.estimated_value) || 0),
+    (sum, game) => sum + parseValue(game),
     0
   );
 
@@ -103,7 +107,7 @@ const GamesList = ({ games, onSelectGame }) => {
               </tr>
             </thead>
             <tbody>
-              {games.map(renderGameRow)}
+              {sortByValueDesc(games).map(renderGameRow)}
             </tbody>
           </table>
         </>
@@ -122,7 +126,7 @@ const GamesList = ({ games, onSelectGame }) => {
               </tr>
             </thead>
             <tbody>
-              {selectedConsoleGames.map(renderGameRow)}
+              {sortByValueDesc(selectedConsoleGames).map(renderGameRow)}
             </tbody>
           </table>
         </>
