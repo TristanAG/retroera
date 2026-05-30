@@ -28,6 +28,12 @@ function AddGame({
   const suppressDropdownRef = useRef(false);
 
   useEffect(() => {
+    if (igdbId) {
+      setSuggestions([]);
+      setShowDropdown(false);
+      return;
+    }
+
     const platformId = CONSOLE_TO_IGDB_PLATFORM[consoleName];
     if (!platformId || gameTitle.trim().length < 3) {
       setSuggestions([]);
@@ -71,7 +77,7 @@ function AddGame({
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [gameTitle, consoleName]);
+  }, [gameTitle, consoleName, igdbId]);
 
   const handleTitleChange = (e) => {
     suppressDropdownRef.current = false;

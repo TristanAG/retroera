@@ -71,6 +71,31 @@ function App() {
     setGames([]);
   };
 
+  const resetAddGameForm = () => {
+    setGameTitle("");
+    setConsoleName("");
+    setCondition("CIB");
+    setEstimatedValue("");
+    setIgdbId("");
+  };
+
+  const isGameInCollection = (igdbId, console) =>
+    games.some(
+      (g) =>
+        String(g.igdb_id).trim() === String(igdbId) &&
+        g.console === console
+    );
+
+  const handleAddGameFromBrowse = () => {
+    if (!selectedGame) return;
+    setGameTitle(selectedGame.title);
+    setConsoleName(selectedGame.console);
+    setCondition("CIB");
+    setEstimatedValue("");
+    setIgdbId(String(selectedGame.igdbId));
+    setPage("add-game");
+  };
+
   const handleAddGame = async () => {
     if (!gameTitle || !consoleName || !estimatedValue)
       return alert("Fill in all fields!");
@@ -84,12 +109,18 @@ function App() {
         igdb_id: igdbId,
         userId: user.uid,
       });
-      setGameTitle("");
-      setConsoleName("");
-      setCondition("CIB");
-      setEstimatedValue("");
-      setIgdbId("");
-      fetchGames();
+      const addedGame = {
+        igdbId: String(igdbId),
+        title: gameTitle,
+        console: consoleName,
+      };
+      resetAddGameForm();
+      await fetchGames();
+      if (!selectedGame) {
+        setGameReturnPage("home");
+      }
+      setSelectedGame(addedGame);
+      setPage("game");
     } catch (error) {
       alert(error.message);
     }
@@ -120,7 +151,12 @@ function App() {
       <Header user={user} onLogOut={handleLogOut} setPage={setPage} />
 
       {user && (
-        <Navigation setPage={setPage} user={user} onLogOut={handleLogOut} />
+        <Navigation
+          setPage={setPage}
+          user={user}
+          onLogOut={handleLogOut}
+          resetAddGameForm={resetAddGameForm}
+        />
       )}
 
       {user ? (
@@ -139,6 +175,11 @@ function App() {
                 <Game
                   igdbId={selectedGame.igdbId}
                   title={selectedGame.title}
+                  isInCollection={isGameInCollection(
+                    selectedGame.igdbId,
+                    selectedGame.console
+                  )}
+                  onAddToCollection={handleAddGameFromBrowse}
                   onBack={handleBackFromGame}
                 />
               ) : (

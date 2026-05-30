@@ -1,10 +1,10 @@
 import { use } from "react"
 
-const Navigation = ({ user, onLogOut, setPage }) => {
+const Navigation = ({ user, onLogOut, setPage, resetAddGameForm }) => {
 
 
     function handleAddGameClick() {
-        // alert("Add Game Clicked")
+        resetAddGameForm?.();
         setPage('add-game')
     }
 

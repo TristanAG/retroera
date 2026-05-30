@@ -3,7 +3,13 @@ import { useState, useEffect } from "react";
 import { igdbImageUrl } from "../igdbService";
 import PriceChartingLink from "./PriceChartingLink";
 
-const Game = ({ igdbId, title, onBack }) => {
+const Game = ({
+  igdbId,
+  title,
+  isInCollection,
+  onAddToCollection,
+  onBack,
+}) => {
   const [game, setGame] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -91,7 +97,18 @@ const Game = ({ igdbId, title, onBack }) => {
 
   return (
     <div className="game-page">
-      <button className="button is-small" onClick={onBack}>← Back</button>
+      <div className="game-page__header">
+        <button className="button is-small" onClick={onBack}>← Back</button>
+        {!isInCollection && onAddToCollection && (
+          <button
+            type="button"
+            className="button is-primary is-small"
+            onClick={onAddToCollection}
+          >
+            + add game
+          </button>
+        )}
+      </div>
 
       <div className={`game-layout${coverFull ? "" : " game-layout--content-only"}`}>
         {coverFull && (

@@ -345,6 +345,13 @@ label {
   margin: 0 auto;
 }
 
+.game-page__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
 .game-layout {
   display: grid;
   grid-template-columns: minmax(220px, 320px) 1fr;
