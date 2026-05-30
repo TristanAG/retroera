@@ -268,13 +268,3 @@ export async function searchGamesByPlatform(
     .slice(0, limit)
     .map(mapGameResult);
 }
-
-export async function searchGamesByTitle(title, consoleName) {
-  const platformId = CONSOLE_TO_IGDB_PLATFORM[consoleName];
-  if (!platformId || !title || title.trim().length < 3) {
-    return [];
-  }
-
-  const results = await searchGamesByPlatform(title, platformId, { limit: 8 });
-  return results.map(({ id, name, releaseYear }) => ({ id, name, releaseYear }));
-}

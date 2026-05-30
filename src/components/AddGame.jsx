@@ -1,7 +1,10 @@
-import { useEffect, useState } from "react";
-import { CONSOLE_OPTIONS, searchGamesByTitle } from "../igdbService";
+import { useEffect, useRef, useState } from "react";
+import { CONSOLE_OPTIONS, CONSOLE_TO_IGDB_PLATFORM, searchGamesByPlatform } from "../igdbService";
 import { CONDITION_PRICE_HINTS } from "../priceChartingService";
 import PriceChartingLink from "./PriceChartingLink";
+
+const SEARCH_DEBOUNCE_MS = 300;
+const ADD_GAME_SUGGESTION_LIMIT = 8;
 
 function AddGame({
   gameTitle,
@@ -22,9 +25,11 @@ function AddGame({
   const [searchError, setSearchError] = useState("");
   const [showIgdbError, setShowIgdbError] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+  const suppressDropdownRef = useRef(false);
 
   useEffect(() => {
-    if (!consoleName || gameTitle.trim().length < 3) {
+    const platformId = CONSOLE_TO_IGDB_PLATFORM[consoleName];
+    if (!platformId || gameTitle.trim().length < 3) {
       setSuggestions([]);
       setShowDropdown(false);
       setHasSearched(false);
@@ -40,21 +45,27 @@ function AddGame({
       setIsSearching(true);
       setSearchError("");
       try {
-        const results = await searchGamesByTitle(searchTerm, consoleName);
+        const results = await searchGamesByPlatform(searchTerm, platformId, {
+          limit: ADD_GAME_SUGGESTION_LIMIT,
+        });
         if (cancelled) return;
         setSuggestions(results);
         setHasSearched(true);
-        setShowDropdown(true);
+        if (!suppressDropdownRef.current) {
+          setShowDropdown(true);
+        }
       } catch {
         if (cancelled) return;
         setSuggestions([]);
         setSearchError("Unable to search IGDB. Is the server running?");
         setHasSearched(true);
-        setShowDropdown(true);
+        if (!suppressDropdownRef.current) {
+          setShowDropdown(true);
+        }
       } finally {
         if (!cancelled) setIsSearching(false);
       }
-    }, 300);
+    }, SEARCH_DEBOUNCE_MS);
 
     return () => {
       cancelled = true;
@@ -63,12 +74,14 @@ function AddGame({
   }, [gameTitle, consoleName]);
 
   const handleTitleChange = (e) => {
+    suppressDropdownRef.current = false;
     setGameTitle(e.target.value);
     setIgdbId("");
     setShowIgdbError(false);
   };
 
   const handleConsoleChange = (e) => {
+    suppressDropdownRef.current = false;
     setConsoleName(e.target.value);
     setIgdbId("");
     setShowIgdbError(false);
@@ -78,6 +91,7 @@ function AddGame({
   };
 
   const handleSelectSuggestion = (suggestion) => {
+    suppressDropdownRef.current = true;
     setGameTitle(suggestion.name);
     setIgdbId(suggestion.id);
     setShowDropdown(false);
@@ -135,6 +149,7 @@ function AddGame({
                 disabled={!consoleName}
                 onChange={handleTitleChange}
                 onFocus={() => {
+                  if (igdbId || suppressDropdownRef.current) return;
                   if (suggestions.length > 0 || showNoResults || searchError) {
                     setShowDropdown(true);
                   }
@@ -150,28 +165,43 @@ function AddGame({
                   {showNoResults && (
                     <div className="dropdown-item has-text-grey">No IGDB matches found</div>
                   )}
-                  {suggestions.map((suggestion) => (
-                    <a
-                      key={suggestion.id}
-                      className="dropdown-item"
-                      role="button"
-                      tabIndex={0}
-                      onClick={() => handleSelectSuggestion(suggestion)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") {
-                          e.preventDefault();
-                          handleSelectSuggestion(suggestion);
-                        }
-                      }}
-                    >
-                      <span>{suggestion.name}</span>
-                      {suggestion.releaseYear && (
-                        <span className="tag is-light is-size-7 ml-2">
-                          {suggestion.releaseYear}
-                        </span>
-                      )}
-                    </a>
-                  ))}
+                  {suggestions.length > 0 && (
+                    <ul className="explore-game-list add-form-suggestions">
+                      {suggestions.map((suggestion) => (
+                        <li
+                          key={suggestion.id}
+                          className="explore-game-list__item"
+                          role="button"
+                          tabIndex={0}
+                          onClick={() => handleSelectSuggestion(suggestion)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              handleSelectSuggestion(suggestion);
+                            }
+                          }}
+                        >
+                          {suggestion.coverUrl ? (
+                            <img
+                              src={suggestion.coverUrl}
+                              alt={suggestion.name}
+                              width={64}
+                              height={64}
+                              className="explore-game-list__cover"
+                            />
+                          ) : (
+                            <div className="explore-game-list__cover explore-game-list__cover--placeholder" />
+                          )}
+                          <div>
+                            <h3 className="title is-5 mb-1">{suggestion.name}</h3>
+                            {suggestion.releaseYear && (
+                              <p className="has-text-grey">{suggestion.releaseYear}</p>
+                            )}
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
               </div>
             )}

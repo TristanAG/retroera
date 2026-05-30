@@ -101,8 +101,25 @@ button:focus-visible {
 }
 
 .add-form .add-form-dropdown {
-  max-height: 240px;
+  max-height: 360px;
   overflow-y: auto;
+  padding: 0;
+}
+
+.add-form .add-form-suggestions .explore-game-list__item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 12px;
+}
+
+.add-form .add-form-suggestions .explore-game-list__item {
+  padding-top: 12px;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.add-form .add-form-suggestions .title.is-5 {
+  font-size: 1rem;
 }
 
 label {
