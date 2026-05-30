@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { signUp, logIn, logOut } from "./authService";
-import { addGame, getGames } from "./firestoreService";
+import { addGame, getGames, removeGame, updateGame } from "./firestoreService";
 import { auth } from "./firebase";
 import "bulma/css/bulma.min.css";
 
@@ -8,6 +8,7 @@ import Header from "./components/Header";
 import Navigation from "./components/Navigation";
 import Login from "./components/Login";
 import AddGame from "./components/AddGame";
+import EditGame from "./components/EditGame";
 import GamesList from "./components/GamesList";
 import Explore from "./components/Explore";
 import Game from "./components/Game";
@@ -38,6 +39,8 @@ function App() {
   const [page, setPage] = useState("home");
   const [selectedGame, setSelectedGame] = useState(null);
   const [gameReturnPage, setGameReturnPage] = useState("home");
+  const [editingGame, setEditingGame] = useState(null);
+  const [editReturnPage, setEditReturnPage] = useState("home");
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
@@ -81,6 +84,13 @@ function App() {
 
   const isGameInCollection = (igdbId, console) =>
     games.some(
+      (g) =>
+        String(g.igdb_id).trim() === String(igdbId) &&
+        g.console === console
+    );
+
+  const findCollectionGame = (igdbId, console) =>
+    games.find(
       (g) =>
         String(g.igdb_id).trim() === String(igdbId) &&
         g.console === console
@@ -146,6 +156,61 @@ function App() {
     setPage(gameReturnPage);
   };
 
+  const handleEditGame = (game, returnPage = page) => {
+    setEditingGame(game);
+    setCondition(game.condition);
+    setEstimatedValue(String(game.estimated_value ?? ""));
+    setEditReturnPage(returnPage);
+    setPage("edit-game");
+  };
+
+  const handleCancelEdit = () => {
+    setEditingGame(null);
+    setPage(editReturnPage);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingGame || !estimatedValue) return alert("Fill in all fields!");
+    try {
+      await updateGame(
+        editingGame.id,
+        editingGame.console,
+        editingGame.igdb_id,
+        {
+          condition,
+          estimated_value: parseFloat(estimatedValue),
+        }
+      );
+      await fetchGames();
+      const returnPage = editReturnPage;
+      if (returnPage === "game") {
+        setSelectedGame({
+          igdbId: String(editingGame.igdb_id).trim(),
+          title: editingGame.title,
+          console: editingGame.console,
+        });
+      }
+      setEditingGame(null);
+      setPage(returnPage);
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
+  const handleDeleteGame = async (game, { navigateAfter = null } = {}) => {
+    if (!window.confirm(`Remove "${game.title}" from your collection?`)) return;
+    try {
+      await removeGame(game.id, game.console, game.igdb_id);
+      await fetchGames();
+      if (navigateAfter) {
+        setSelectedGame(null);
+        setPage(navigateAfter);
+      }
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
   return (
     <section className="section">
       <Header user={user} onLogOut={handleLogOut} setPage={setPage} />
@@ -162,11 +227,21 @@ function App() {
       {user ? (
         <div className="section">
           {page === "home" && (
-            <GamesList games={games} onSelectGame={handleSelectGame} />
+            <GamesList
+              games={games}
+              onSelectGame={handleSelectGame}
+              onEditGame={(game) => handleEditGame(game, "home")}
+              onDeleteGame={(game) => handleDeleteGame(game)}
+            />
           )}
 
           {page === "collection" && (
-            <GamesList games={games} onSelectGame={handleSelectGame} />
+            <GamesList
+              games={games}
+              onSelectGame={handleSelectGame}
+              onEditGame={(game) => handleEditGame(game, "collection")}
+              onDeleteGame={(game) => handleDeleteGame(game)}
+            />
           )}
 
           {page === "game" && (
@@ -179,7 +254,15 @@ function App() {
                     selectedGame.igdbId,
                     selectedGame.console
                   )}
+                  collectionGame={findCollectionGame(
+                    selectedGame.igdbId,
+                    selectedGame.console
+                  )}
                   onAddToCollection={handleAddGameFromBrowse}
+                  onEditGame={(game) => handleEditGame(game, "game")}
+                  onDeleteGame={(game) =>
+                    handleDeleteGame(game, { navigateAfter: gameReturnPage })
+                  }
                   onBack={handleBackFromGame}
                 />
               ) : (
@@ -191,6 +274,24 @@ function App() {
           {page === "user" && (
             <CenteredPage>
               <p>User page</p>
+            </CenteredPage>
+          )}
+
+          {page === "edit-game" && (
+            <CenteredPage>
+              {editingGame ? (
+                <EditGame
+                  game={editingGame}
+                  condition={condition}
+                  setCondition={setCondition}
+                  estimatedValue={estimatedValue}
+                  setEstimatedValue={setEstimatedValue}
+                  onSave={handleSaveEdit}
+                  onCancel={handleCancelEdit}
+                />
+              ) : (
+                <p>Game data not available. Please select a valid game.</p>
+              )}
             </CenteredPage>
           )}
 

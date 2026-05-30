@@ -7,6 +7,7 @@ import {
   where,
   doc,
   deleteDoc,
+  updateDoc,
   setDoc,
   onSnapshot
 } from "firebase/firestore";
@@ -64,17 +65,65 @@ export const getGames = async () => {
   }
 };
 
-// Remove a game from Firestore
-export const removeGame = async (gameId) => {
+// Remove a game from Firestore (flat list + console subcollection)
+export const removeGame = async (gameId, consoleName, igdbId) => {
   const user = auth.currentUser;
   if (!user) throw new Error("User not authenticated");
 
-  const gameRef = doc(db, "users", user.uid, "games", gameId);
-
   try {
-    await deleteDoc(gameRef);
+    await deleteDoc(doc(db, "users", user.uid, "games", gameId));
+
+    const consoleGamesRef = collection(
+      db,
+      "users",
+      user.uid,
+      "consoles",
+      consoleName,
+      "games"
+    );
+    const consoleQuery = query(
+      consoleGamesRef,
+      where("igdb_id", "==", String(igdbId))
+    );
+    const consoleSnapshot = await getDocs(consoleQuery);
+    await Promise.all(consoleSnapshot.docs.map((d) => deleteDoc(d.ref)));
   } catch (error) {
     console.error("Error removing game:", error.message);
+    throw error;
+  }
+};
+
+// Update a game in Firestore (flat list + console subcollection)
+export const updateGame = async (gameId, consoleName, igdbId, updates) => {
+  const user = auth.currentUser;
+  if (!user) throw new Error("User not authenticated");
+
+  const payload = {
+    condition: updates.condition,
+    estimated_value: updates.estimated_value,
+  };
+
+  try {
+    await updateDoc(doc(db, "users", user.uid, "games", gameId), payload);
+
+    const consoleGamesRef = collection(
+      db,
+      "users",
+      user.uid,
+      "consoles",
+      consoleName,
+      "games"
+    );
+    const consoleQuery = query(
+      consoleGamesRef,
+      where("igdb_id", "==", String(igdbId))
+    );
+    const consoleSnapshot = await getDocs(consoleQuery);
+    await Promise.all(
+      consoleSnapshot.docs.map((d) => updateDoc(d.ref, payload))
+    );
+  } catch (error) {
+    console.error("Error updating game:", error.message);
     throw error;
   }
 };

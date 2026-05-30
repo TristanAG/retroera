@@ -7,7 +7,10 @@ const Game = ({
   igdbId,
   title,
   isInCollection,
+  collectionGame,
   onAddToCollection,
+  onEditGame,
+  onDeleteGame,
   onBack,
 }) => {
   const [game, setGame] = useState(null);
@@ -99,15 +102,35 @@ const Game = ({
     <div className="game-page">
       <div className="game-page__header">
         <button className="button is-small" onClick={onBack}>← Back</button>
-        {!isInCollection && onAddToCollection && (
-          <button
-            type="button"
-            className="button is-primary is-small"
-            onClick={onAddToCollection}
-          >
-            + add game
-          </button>
-        )}
+        <div className="game-page__actions">
+          {!isInCollection && onAddToCollection && (
+            <button
+              type="button"
+              className="button is-primary is-small"
+              onClick={onAddToCollection}
+            >
+              + add game
+            </button>
+          )}
+          {isInCollection && collectionGame && (
+            <>
+              <button
+                type="button"
+                className="button is-small"
+                onClick={() => onEditGame?.(collectionGame)}
+              >
+                edit
+              </button>
+              <button
+                type="button"
+                className="button is-danger is-small"
+                onClick={() => onDeleteGame?.(collectionGame)}
+              >
+                delete
+              </button>
+            </>
+          )}
+        </div>
       </div>
 
       <div className={`game-layout${coverFull ? "" : " game-layout--content-only"}`}>

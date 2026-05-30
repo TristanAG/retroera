@@ -352,6 +352,20 @@ label {
   gap: 1rem;
 }
 
+.game-page__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.games-list__actions {
+  white-space: nowrap;
+}
+
+.games-list__actions .button + .button {
+  margin-left: 0.5rem;
+}
+
 .game-layout {
   display: grid;
   grid-template-columns: minmax(220px, 320px) 1fr;

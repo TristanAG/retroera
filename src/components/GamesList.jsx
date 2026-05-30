@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { subscribeToConsoles, subscribeToGamesByConsole } from "../firestoreService";
 
-const GamesList = ({ games, onSelectGame }) => {
+const GamesList = ({ games, onSelectGame, onEditGame, onDeleteGame }) => {
   const [consoles, setConsoles] = useState([]);
   const [selectedConsoleGames, setSelectedConsoleGames] = useState([]);
   const [selectedConsole, setSelectedConsole] = useState(null);
@@ -39,13 +39,18 @@ const GamesList = ({ games, onSelectGame }) => {
     </h3>
   );
 
+  const getCanonicalGame = (game) =>
+    games.find(
+      (g) =>
+        String(g.igdb_id).trim() === String(game.igdb_id).trim() &&
+        g.console === game.console
+    ) ?? game;
+
   // Helper: Render game row
   const renderGameRow = (game) => (
     <tr
       key={game.id}
       onClick={() => {
-        console.log("Clicked game:", game);       // <- logs entire object
-        console.log("IGDB ID:", game.igdb_id);    // <- logs the ID
         if (!game.igdb_id || !game.igdb_id.trim()) {
           alert(`IGDB ID not available for "${game.title}". Please backfill the ID.`);
           return;
@@ -56,15 +61,30 @@ const GamesList = ({ games, onSelectGame }) => {
           console: game.console,
         });
       }}
-
       style={{
         cursor: game.igdb_id ? "pointer" : "not-allowed",
-        opacity: game.igdb_id ? 1 : 0.6
+        opacity: game.igdb_id ? 1 : 0.6,
       }}
     >
       <td>{game.title}</td>
       <td>{game.condition}</td>
       <td className="has-text-success-65 has-text-weight-semibold">${game.estimated_value}</td>
+      <td className="games-list__actions" onClick={(e) => e.stopPropagation()}>
+        <button
+          type="button"
+          className="button is-small"
+          onClick={() => onEditGame?.(getCanonicalGame(game))}
+        >
+          edit
+        </button>
+        <button
+          type="button"
+          className="button is-danger is-small"
+          onClick={() => onDeleteGame?.(getCanonicalGame(game))}
+        >
+          delete
+        </button>
+      </td>
     </tr>
   );
 
@@ -104,6 +124,7 @@ const GamesList = ({ games, onSelectGame }) => {
                 <th>Game</th>
                 <th>Condition</th>
                 <th>Value</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -123,6 +144,7 @@ const GamesList = ({ games, onSelectGame }) => {
                 <th>Game</th>
                 <th>Condition</th>
                 <th>Value</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
