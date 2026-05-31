@@ -245,7 +245,7 @@ function App() {
           )}
 
           {page === "game" && (
-            <CenteredPage>
+            <>
               {selectedGame ? (
                 <Game
                   igdbId={selectedGame.igdbId}
@@ -268,7 +268,7 @@ function App() {
               ) : (
                 <p>Game data not available. Please select a valid game.</p>
               )}
-            </CenteredPage>
+            </>
           )}
 
           {page === "user" && (
