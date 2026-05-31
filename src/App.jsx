@@ -225,7 +225,7 @@ function App() {
       )}
 
       {user ? (
-        <div className="section">
+        <div style={{ padding: "15px" }}>
           {page === "home" && (
             <GamesList
               games={games}

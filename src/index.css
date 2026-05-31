@@ -133,10 +133,11 @@ label {
 
 .user-console-list {
   display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
   margin-bottom: 18px;
 
   li {
-    margin-right: 8px;
     text-decoration: underline;
     cursor: pointer;
   }
