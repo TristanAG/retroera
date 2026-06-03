@@ -78,12 +78,12 @@ function buildNamePrefixFilter(namePrefix) {
   if (!namePrefix) return "";
   if (namePrefix === "#") {
     const digitPrefixes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(
-      (d) => `name ~ "${d}*"`
+      (d) => `name ~ "${d}"*`
     );
     return ` & (${digitPrefixes.join(" | ")})`;
   }
   const letter = namePrefix.toUpperCase();
-  return ` & (name ~ "${letter}*" | name ~ "${letter.toLowerCase()}*")`;
+  return ` & name ~ "${letter}"*`;
 }
 
 function mapGameResult(game) {
@@ -110,7 +110,7 @@ export async function fetchGamesByPlatform(
   const nameFilter = buildNamePrefixFilter(namePrefix);
   const query = `
     fields id,name,cover.image_id,first_release_date;
-    where platforms = ${platformId} & ${buildRegionFilter(regionIds)}${nameFilter};
+    where release_dates.platform = ${platformId} & ${buildRegionFilter(regionIds)}${nameFilter};
     sort ${sort};
     limit ${limit};
     offset ${offset};
