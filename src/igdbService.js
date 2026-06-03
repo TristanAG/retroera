@@ -54,6 +54,9 @@ export const CONSOLE_OPTIONS = Object.keys(CONSOLE_TO_IGDB_PLATFORM).sort((a, b)
 
 export const PAGE_SIZE = 20;
 
+/** IGDB stops returning results beyond this offset on browse queries. */
+export const IGDB_MAX_OFFSET = 1000;
+
 /** IGDB release_date_regions ids (release_dates.release_region) */
 export const EXPLORE_REGIONS = [
   { id: 2, label: "US" },
@@ -84,6 +87,50 @@ function buildNamePrefixFilter(namePrefix) {
   }
   const letter = namePrefix.toUpperCase();
   return ` & name ~ "${letter}"*`;
+}
+
+function parseJsonBody(text, label = "response") {
+  if (!text) return null;
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error(`Invalid JSON in ${label}`);
+  }
+}
+
+function parseIgdbResponse(data, fallbackMessage = "IGDB request failed") {
+  if (Array.isArray(data)) {
+    if (data.length > 0 && data[0]?.status >= 400) {
+      throw new Error(data[0].title || data[0].message || fallbackMessage);
+    }
+    return data;
+  }
+
+  if (data && typeof data === "object") {
+    throw new Error(data.error || data.message || data.title || fallbackMessage);
+  }
+
+  throw new Error("Unexpected IGDB response");
+}
+
+async function readIgdbResponse(res, fallbackMessage) {
+  const text = await res.text();
+  const data = parseJsonBody(text, "IGDB proxy response");
+
+  if (!res.ok) {
+    throw new Error(
+      (data && typeof data === "object" && (data.error || data.message)) ||
+        (text ? fallbackMessage : `${fallbackMessage}. Is the IGDB server running on port 4000?`)
+    );
+  }
+
+  if (data == null) {
+    throw new Error(
+      "Empty response from IGDB proxy. Start the server with: cd server && node index.js"
+    );
+  }
+
+  return parseIgdbResponse(data, fallbackMessage);
 }
 
 function mapGameResult(game) {
@@ -122,19 +169,7 @@ export async function fetchGamesByPlatform(
     body: JSON.stringify({ query }),
   });
 
-  if (!res.ok) {
-    throw new Error("Failed to fetch IGDB games");
-  }
-
-  const data = await res.json();
-
-  if (!Array.isArray(data)) {
-    throw new Error("Unexpected IGDB response");
-  }
-
-  if (data.length > 0 && data[0].status >= 400) {
-    throw new Error(data[0].title || "IGDB request failed");
-  }
+  const data = await readIgdbResponse(res, "Failed to fetch IGDB games");
 
   return data
     .filter((game) => game.id != null && game.name)
@@ -201,21 +236,7 @@ async function postIgdbQuery(query) {
     body: JSON.stringify({ query }),
   });
 
-  if (!res.ok) {
-    throw new Error("Failed to search IGDB");
-  }
-
-  const data = await res.json();
-
-  if (!Array.isArray(data)) {
-    throw new Error("Unexpected IGDB response");
-  }
-
-  if (data.length > 0 && data[0].status >= 400) {
-    throw new Error(data[0].title || "IGDB search failed");
-  }
-
-  return data;
+  return readIgdbResponse(res, "Failed to search IGDB");
 }
 
 export async function searchGamesByPlatform(

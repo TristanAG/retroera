@@ -5,6 +5,7 @@ import {
   DEFAULT_EXPLORE_REGION_IDS,
   EXPLORE_REGIONS,
   fetchGamesByPlatform,
+  IGDB_MAX_OFFSET,
   PAGE_SIZE,
   searchGamesByPlatform,
 } from "../igdbService";
@@ -18,7 +19,7 @@ function Explore({ onSelectGame }) {
   const [pageIndex, setPageIndex] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [selectedLetter, setSelectedLetter] = useState(null);
+  const [selectedLetter, setSelectedLetter] = useState("A");
   const [games, setGames] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -90,7 +91,11 @@ function Explore({ onSelectGame }) {
     });
   };
 
-  const hasNextPage = !isSearchMode && games.length === PAGE_SIZE;
+  const segmentOffset = pageIndex * PAGE_SIZE;
+  const hasNextPage =
+    !isSearchMode &&
+    games.length === PAGE_SIZE &&
+    segmentOffset + PAGE_SIZE < IGDB_MAX_OFFSET;
   const hasPrevPage = !isSearchMode && pageIndex > 0;
 
   const paginationBar = (
@@ -119,7 +124,7 @@ function Explore({ onSelectGame }) {
     setPageIndex(0);
     setSearchQuery("");
     setDebouncedSearch("");
-    setSelectedLetter(null);
+    setSelectedLetter("A");
     setGames([]);
     setError(null);
   };
@@ -136,7 +141,7 @@ function Explore({ onSelectGame }) {
 
   const handleLetterClick = (letter) => {
     setPageIndex(0);
-    setSelectedLetter((prev) => (prev === letter ? null : letter));
+    setSelectedLetter(letter);
   };
 
   const handleClearSearch = () => {
@@ -224,9 +229,7 @@ function Explore({ onSelectGame }) {
   const showAlphaBar = !isSearchMode && searchQuery.trim().length === 0;
   const emptyMessage = isSearchMode
     ? "No games match your search on this console."
-    : selectedLetter
-      ? `No games starting with "${selectedLetter}" for this console.`
-      : "No games found for this console.";
+    : `No games starting with "${selectedLetter}" for this console.`;
 
   return (
     <div className="explore explore-console-view" style={{ padding: "20px", maxWidth: "960px", margin: "0 auto" }}>
@@ -258,14 +261,9 @@ function Explore({ onSelectGame }) {
       </div>
 
       {showAlphaBar && (
-        <div className="explore-alpha-bar mb-4">
-          <button
-            type="button"
-            className={`explore-alpha-bar__btn ${selectedLetter === null ? "is-active" : ""}`}
-            onClick={() => setSelectedLetter(null)}
-          >
-            All
-          </button>
+        <>
+          <p className="has-text-grey mb-2">Browse by first letter</p>
+          <div className="explore-alpha-bar mb-4">
           {ALPHA_LETTERS.map((letter) => (
             <button
               key={letter}
@@ -283,7 +281,8 @@ function Explore({ onSelectGame }) {
           >
             #
           </button>
-        </div>
+          </div>
+        </>
       )}
 
       {loading && <p>Loading games…</p>}

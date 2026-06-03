@@ -313,7 +313,12 @@ function App() {
             </CenteredPage>
           )}
 
-          {page === "explore" && <Explore onSelectGame={handleSelectGame} />}
+          {(page === "explore" ||
+            (page === "game" && gameReturnPage === "explore")) && (
+            <div style={{ display: page === "explore" ? "block" : "none" }}>
+              <Explore onSelectGame={handleSelectGame} />
+            </div>
+          )}
         </div>
       ) : (
         <div

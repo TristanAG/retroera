@@ -2,6 +2,34 @@
 
 RetroEra is a retro physical media social network focused on helping users catalog, display, and value their physical game collections. The long-term product vision includes marketplace activity (buy/sell/trade), while the current codebase is focused on collection management and discovery.
 
+# MVP PHASES
+
+## PHASE I
+- Catalogue management tracking collection and values
+  - ability to browse all games via IGDB and add entries to collection
+  - ability to search for games via IGDB and add entries to collection
+  - set price with a reference to pricecharting (currently external link)
+  - ability to view / browse collection, filter by console, price, alphabetical
+  - proper navigation, back buttons lead to previous page
+
+## PHASE II
+- Social layer
+  - Activity feed of all different user updates
+    - First goal is just tracking 'Add' or 'Edit' operations
+  - User list
+    - User Stats (member since xx.xx, collection value)
+    - User index page (able to view / browse other users collections in same interface)
+
+## Phase III
+- Marketplace
+  - Users can list games for sale
+  - Users can buy / sell with other users 
+    - Most likely using stripe
+  - Develop monetization strategy where I recieve a tiny portion of the transactions as a platform fee or whatever
+    - think through all the test cases here for Users to transact with each other
+      - Transactions show up in Social Layer / social feed
+
+
 ## Key Functionality (Currently Implemented)
 
 - User authentication via Firebase email/password.
@@ -62,3 +90,4 @@ Game documents store:
 - The app is already useful for personal collection tracking and value visibility.
 - Marketplace behavior is planned but not active in current code.
 - eBay integration scaffolding exists in `src/ebayService.js`, but is not currently wired into primary user flows.
+
