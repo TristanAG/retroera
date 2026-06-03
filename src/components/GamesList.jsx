@@ -3,6 +3,9 @@ import { subscribeToConsoles, subscribeToGamesByConsole } from "../firestoreServ
 
 const PAGE_SIZE = 10;
 
+const formatMoney = (amount) =>
+  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(amount);
+
 const GamesList = ({ games, onSelectGame, onEditGame, onDeleteGame }) => {
   const [consoles, setConsoles] = useState([]);
   const [selectedConsoleGames, setSelectedConsoleGames] = useState([]);
@@ -84,7 +87,7 @@ const GamesList = ({ games, onSelectGame, onEditGame, onDeleteGame }) => {
   const renderTotalValue = (total, inline = false) => (
     <h3 className={`is-size-4 ${inline ? "mb-0" : "has-text-right mb-4"}`}>
       <strong>Total Value:</strong>{" "}
-      <span className="has-text-success-65 has-text-weight-semibold">${total.toFixed(2)}</span>
+      <span className="has-text-success-65 has-text-weight-semibold">{formatMoney(total)}</span>
     </h3>
   );
 
