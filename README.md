@@ -6,11 +6,19 @@ RetroEra is a retro physical media social network focused on helping users catal
 
 ## PHASE I
 - Catalogue management tracking collection and values
-  - ability to browse all games via IGDB and add entries to collection
-  - ability to search for games via IGDB and add entries to collection
-  - set price with a reference to pricecharting (currently external link)
-  - ability to view / browse collection, filter by console, price, alphabetical
-  - proper navigation, back buttons lead to previous page
+  - ✅ ability to browse all games via IGDB and add entries to collection
+  - ✅ ability to search for games via IGDB and add entries to collection
+  - ✅ set price with a reference to pricecharting (currently external link)
+  - ✅ ability to view / browse collection, filter by console, price, alphabetical
+  - ✅ proper navigation, back buttons lead to previous page
+  - Condition should be revised, either CIB or Loose I think
+  - man implementing price charting api would be awesome... but i can't pay for that now
+  - what other data source would be cool to flesh out the Game View page?
+  - use should be able to add their own photos in game add form (will be useful when marketplace opens)
+  - Ability to add Consoles to your collection
+    - Should this just be done custom (as in no API?)
+      - Consoles could go in a unique place when browsing your collection
+        - Consoles tab / filter, and allow Console status in filtered games list
 
 ## PHASE II
 - Social layer
@@ -19,6 +27,9 @@ RetroEra is a retro physical media social network focused on helping users catal
   - User list
     - User Stats (member since xx.xx, collection value)
     - User index page (able to view / browse other users collections in same interface)
+
+## Phase ??
+- Port vite project to Next.js
 
 ## Phase III
 - Marketplace
