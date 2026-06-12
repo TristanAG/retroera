@@ -32,6 +32,12 @@ const GamesList = ({ games, onSelectGame, onEditGame, onDeleteGame }) => {
     setPageIndex(0);
   }, [selectedConsole]);
 
+  useEffect(() => {
+    if (selectedConsole && !consoles.includes(selectedConsole)) {
+      setSelectedConsole(null);
+    }
+  }, [consoles, selectedConsole]);
+
   const activeGames = selectedConsole === null ? games : selectedConsoleGames;
 
   useEffect(() => {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { signUp, logIn, logOut } from "./authService";
-import { addGame, getGames, removeGame, updateGame } from "./firestoreService";
+import { addGame, getGames, pruneEmptyConsoles, removeGame, updateGame } from "./firestoreService";
 import { auth } from "./firebase";
 import "bulma/css/bulma.min.css";
 
@@ -43,9 +43,16 @@ function App() {
   const [editReturnPage, setEditReturnPage] = useState("home");
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
+    const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
       setUser(currentUser);
-      if (currentUser) fetchGames();
+      if (currentUser) {
+        try {
+          await pruneEmptyConsoles();
+        } catch (error) {
+          console.error("Error pruning empty consoles:", error);
+        }
+        fetchGames();
+      }
     });
     return () => unsubscribe();
   }, []);

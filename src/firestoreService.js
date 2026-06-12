@@ -87,8 +87,36 @@ export const removeGame = async (gameId, consoleName, igdbId) => {
     );
     const consoleSnapshot = await getDocs(consoleQuery);
     await Promise.all(consoleSnapshot.docs.map((d) => deleteDoc(d.ref)));
+
+    const remainingGamesSnapshot = await getDocs(consoleGamesRef);
+    if (remainingGamesSnapshot.empty) {
+      await deleteDoc(doc(db, "users", user.uid, "consoles", consoleName));
+    }
   } catch (error) {
     console.error("Error removing game:", error.message);
+    throw error;
+  }
+};
+
+// Remove console docs that have no games (repairs stale entries from before delete cleanup)
+export const pruneEmptyConsoles = async () => {
+  const user = auth.currentUser;
+  if (!user) throw new Error("User not authenticated");
+
+  try {
+    const consolesRef = collection(db, "users", user.uid, "consoles");
+    const consolesSnapshot = await getDocs(consolesRef);
+
+    await Promise.all(
+      consolesSnapshot.docs.map(async (consoleDoc) => {
+        const gamesSnapshot = await getDocs(collection(consoleDoc.ref, "games"));
+        if (gamesSnapshot.empty) {
+          await deleteDoc(consoleDoc.ref);
+        }
+      })
+    );
+  } catch (error) {
+    console.error("Error pruning empty consoles:", error.message);
     throw error;
   }
 };
