@@ -212,6 +212,18 @@ Use the Firebase Emulator Suite for Firestore and Storage rules verification bef
 
 ## Next steps (TODO)
 
+### Public profile
+
+Profiles today are edit-only (`Profile.jsx`) and store a single `displayName`; names appear on community copy cards and copy detail, but there is no browsable profile page. Flesh out the public profile before expanding social features:
+
+- [ ] **Profile page:** Add a route (e.g. `/profile/:uid`) that any signed-in user can view, showing display name, member since, and public collection highlights.
+- [ ] **Profile fields:** Extend the allowlist in `firestore.rules` and `profileService.js` (e.g. bio, avatar URL, location, collection focus) with validation and sensible length limits.
+- [ ] **Editor:** Expand `Profile.jsx` beyond display name—preview how the public page will look, and surface which fields are visible to others.
+- [ ] **Discovery links:** Link owner display names on community rails and copy detail to the public profile page.
+- [ ] **Public collection view:** On the profile page, list that user's public copies (reuse community-copy query patterns; paginate if needed).
+- [ ] **Fallbacks and privacy:** Keep email and auth data off public surfaces; document fallback display names when a profile is missing or incomplete.
+- [ ] **QA:** Cover new flows in `QA_COMMUNITY_COPIES.md` (read paths, field allowlist, cross-user edit rejection).
+
 ### Physical consoles
 
 Treat physical consoles as first-class collection items—similar to games—with a dedicated console page linked from game metadata (e.g. the console label on a game page). Plan the following before implementation:
