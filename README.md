@@ -42,7 +42,8 @@ Public visibility does not mean a copy is for sale. Marketplace availability wil
 - Canonical physical-copy records supporting multiple copies of one release.
 - Private per-copy estimated values and aggregate collection values.
 - Private-by-default or public copy visibility.
-- Up to five ordered JPEG, PNG, or WebP photos per copy:
+- Up to five ordered JPEG, PNG, WebP, or iPhone HEIC photos per copy:
+  - automatic HEIC-to-JPEG conversion in the browser;
   - client-side resizing and WebP compression;
   - corrected camera orientation;
   - stripped EXIF/GPS metadata;

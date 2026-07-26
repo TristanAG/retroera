@@ -1,20 +1,29 @@
-import { MAX_COPY_PHOTOS, validatePhotoFile } from "../storageService";
+import { useState } from "react";
+import {
+  MAX_COPY_PHOTOS,
+  normalizePhotoFile,
+  PHOTO_ACCEPT,
+} from "../storageService";
 import StorageImage from "./StorageImage";
 
 const PhotoManager = ({ items, setItems, disabled = false }) => {
-  const addFiles = (event) => {
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const addFiles = async (event) => {
     const files = [...event.target.files];
     event.target.value = "";
+    if (files.length === 0) return;
     if (items.length + files.length > MAX_COPY_PHOTOS) {
       alert(`You can add up to ${MAX_COPY_PHOTOS} photos.`);
       return;
     }
 
+    setIsProcessing(true);
     try {
-      files.forEach(validatePhotoFile);
+      const normalizedFiles = await Promise.all(files.map(normalizePhotoFile));
       setItems((current) => [
         ...current,
-        ...files.map((file) => ({
+        ...normalizedFiles.map((file) => ({
           id:
             globalThis.crypto?.randomUUID?.() ??
             `${Date.now()}-${Math.random()}`,
@@ -24,6 +33,8 @@ const PhotoManager = ({ items, setItems, disabled = false }) => {
       ]);
     } catch (error) {
       alert(error.message);
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -45,12 +56,15 @@ const PhotoManager = ({ items, setItems, disabled = false }) => {
     });
   };
 
+  const controlsDisabled = disabled || isProcessing;
+
   return (
     <div className="field photo-manager">
       <label className="label">Photos</label>
       <p className="help mb-2">
-        Add up to five photos. The first image is the primary preview. Location
-        metadata is removed during processing.
+        Add up to five photos in JPEG, PNG, WebP, or iPhone HEIC format. The
+        first image is the primary preview. HEIC files are converted automatically,
+        and location metadata is removed during processing.
       </p>
       {items.length > 0 && (
         <ol className="photo-manager__list">
@@ -74,7 +88,7 @@ const PhotoManager = ({ items, setItems, disabled = false }) => {
                 <button
                   type="button"
                   className="button is-small"
-                  disabled={disabled || index === 0}
+                  disabled={controlsDisabled || index === 0}
                   onClick={() => move(index, -1)}
                   aria-label={`Move photo ${index + 1} earlier`}
                 >
@@ -83,7 +97,7 @@ const PhotoManager = ({ items, setItems, disabled = false }) => {
                 <button
                   type="button"
                   className="button is-small"
-                  disabled={disabled || index === items.length - 1}
+                  disabled={controlsDisabled || index === items.length - 1}
                   onClick={() => move(index, 1)}
                   aria-label={`Move photo ${index + 1} later`}
                 >
@@ -92,7 +106,7 @@ const PhotoManager = ({ items, setItems, disabled = false }) => {
                 <button
                   type="button"
                   className="button is-danger is-small"
-                  disabled={disabled}
+                  disabled={controlsDisabled}
                   onClick={() => remove(index)}
                 >
                   remove
@@ -102,18 +116,21 @@ const PhotoManager = ({ items, setItems, disabled = false }) => {
           ))}
         </ol>
       )}
+      {isProcessing && <p className="help mt-2">Processing photos…</p>}
       <div className="file is-small mt-2">
         <label className="file-label">
           <input
             className="file-input"
             type="file"
-            accept="image/jpeg,image/png,image/webp"
+            accept={PHOTO_ACCEPT}
             multiple
-            disabled={disabled || items.length >= MAX_COPY_PHOTOS}
+            disabled={controlsDisabled || items.length >= MAX_COPY_PHOTOS}
             onChange={addFiles}
           />
           <span className="file-cta">
-            <span className="file-label">Choose photos</span>
+            <span className="file-label">
+              {isProcessing ? "Processing…" : "Choose photos"}
+            </span>
           </span>
         </label>
       </div>

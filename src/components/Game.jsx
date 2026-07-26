@@ -147,106 +147,131 @@ const Game = ({
       </div>
 
       <div className="game-page__body">
-        <div className={`game-layout${coverFull ? "" : " game-layout--content-only"}`}>
-          {coverFull && (
+        <div className="game-page__intro">
+          <h2 className="title game-page__title">{game.name}</h2>
+          <PriceChartingLink title={title ?? game.name} />
+        </div>
+
+        <div className={`game-layout${coverFull || screenshotItems.length > 0 ? "" : " game-layout--content-only"}`}>
+          {(coverFull || screenshotItems.length > 0) && (
             <div className="game-layout__media">
-              <button
-                type="button"
-                className="game-cover-btn"
-                onClick={() => setLightboxIndex(coverIndex)}
-                aria-label={`View ${game.name} cover art`}
-              >
-                <img className="game-cover" src={coverFull} alt={game.name} />
-              </button>
+              {coverFull && (
+                <button
+                  type="button"
+                  className="game-cover-btn"
+                  onClick={() => setLightboxIndex(coverIndex)}
+                  aria-label={`View ${game.name} cover art`}
+                >
+                  <img className="game-cover" src={coverFull} alt={game.name} />
+                </button>
+              )}
+
+              {screenshotItems.length > 0 && (
+                <div className="screenshot-thumbnails">
+                  {screenshotItems.map((s, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      className="screenshot-thumbnail"
+                      onClick={() => setLightboxIndex(screenshotThumbOffset + i)}
+                      aria-label={`View screenshot ${i + 1}`}
+                    >
+                      <img src={s.thumb} alt={s.alt} />
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
           <div className="game-layout__content">
-            <h2 className="title">{game.name}</h2>
-            <PriceChartingLink title={title ?? game.name} className="mb-4" />
-            <p><strong>Console:</strong> {consoleName || game.platforms?.map(p => p.name).join(", ")}</p>
-            <p><strong>Developer:</strong> {game.involved_companies?.map(c => c.company.name).join(", ")}</p>
-            <p><strong>Release Year:</strong> {game.first_release_date ? new Date(game.first_release_date * 1000).getFullYear() : "Unknown"}</p>
-            <p><strong>Description:</strong> {game.summary || "No description available."}</p>
-
-            {screenshotItems.length > 0 && (
-              <div className="screenshot-thumbnails">
-                {screenshotItems.map((s, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    className="screenshot-thumbnail"
-                    onClick={() => setLightboxIndex(screenshotThumbOffset + i)}
-                    aria-label={`View screenshot ${i + 1}`}
-                  >
-                    <img src={s.thumb} alt={s.alt} />
-                  </button>
-                ))}
+            <dl className="game-meta">
+              <div className="game-meta__item">
+                <dt>Console</dt>
+                <dd>{consoleName || game.platforms?.map((p) => p.name).join(", ") || "Unknown"}</dd>
               </div>
-            )}
+              <div className="game-meta__item">
+                <dt>Developer</dt>
+                <dd>{game.involved_companies?.map((c) => c.company.name).join(", ") || "Unknown"}</dd>
+              </div>
+              <div className="game-meta__item">
+                <dt>Release year</dt>
+                <dd>
+                  {game.first_release_date
+                    ? new Date(game.first_release_date * 1000).getFullYear()
+                    : "Unknown"}
+                </dd>
+              </div>
+            </dl>
 
-            {copyPhotoEntries.length > 0 && (
-              <section className="copy-photo-gallery mt-4">
-                <h3 className="title is-6 mb-2">Your copy photos</h3>
-                <div className="copy-photo-gallery__thumbs">
-                  {copyPhotoEntries.map((entry) => (
-                    <button
-                      key={entry.path}
-                      type="button"
-                      className="copy-photo-gallery__thumb"
-                      onClick={() => setActiveCopyPhotoPath(entry.path)}
-                      aria-label={`View ${entry.alt}`}
-                    >
-                      <StorageImage
-                        path={entry.path}
-                        alt={entry.alt}
-                        className="copy-photo-gallery__image"
-                      />
-                    </button>
-                  ))}
-                </div>
-              </section>
-            )}
-
-            {ownedCopies.length > 0 && (
-              <section className="owned-copies mt-5">
-                <h3 className="title is-5">Your copies</h3>
-                <div className="owned-copies__list">
-                  {ownedCopies.map((copy, index) => (
-                    <article key={copy.id} className="owned-copy-card">
-                      <StorageImage
-                        path={copy.photoPaths?.[0]}
-                        alt={`${copy.title} copy ${index + 1}`}
-                        className="owned-copy-card__image"
-                      />
-                      <div>
-                        <strong>Copy {index + 1}</strong>
-                        <p>{copy.condition}</p>
-                        <span className="tag is-light">{copy.visibility}</span>
-                      </div>
-                      <div className="owned-copy-card__actions">
-                        <button
-                          type="button"
-                          className="button is-small"
-                          onClick={() => onEditGame?.(copy)}
-                        >
-                          edit
-                        </button>
-                        <button
-                          type="button"
-                          className="button is-danger is-small"
-                          onClick={() => onDeleteGame?.(copy)}
-                        >
-                          delete
-                        </button>
-                      </div>
-                    </article>
-                  ))}
-                </div>
-              </section>
-            )}
+            <section className="game-description">
+              <h3 className="title is-6">Description</h3>
+              <p>{game.summary || "No description available."}</p>
+            </section>
           </div>
         </div>
+
+        {copyPhotoEntries.length > 0 && (
+          <section className="game-page__section copy-photo-gallery">
+            <h3 className="title is-5">Your copy photos</h3>
+            <div className="copy-photo-gallery__thumbs">
+              {copyPhotoEntries.map((entry) => (
+                <button
+                  key={entry.path}
+                  type="button"
+                  className="copy-photo-gallery__thumb"
+                  onClick={() => setActiveCopyPhotoPath(entry.path)}
+                  aria-label={`View ${entry.alt}`}
+                >
+                  <StorageImage
+                    path={entry.path}
+                    alt={entry.alt}
+                    className="copy-photo-gallery__image"
+                  />
+                </button>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {ownedCopies.length > 0 && (
+          <section className="game-page__section owned-copies">
+            <h3 className="title is-5">Your copies</h3>
+            <div className="owned-copies__list">
+              {ownedCopies.map((copy, index) => (
+                <article key={copy.id} className="owned-copy-card">
+                  <StorageImage
+                    path={copy.photoPaths?.[0]}
+                    alt={`${copy.title} copy ${index + 1}`}
+                    className="owned-copy-card__image"
+                  />
+                  <div>
+                    <strong>Copy {index + 1}</strong>
+                    <p>{copy.condition}</p>
+                    <span className="tag is-light">{copy.visibility}</span>
+                  </div>
+                  <div className="owned-copy-card__actions">
+                    <button
+                      type="button"
+                      className="button is-small"
+                      onClick={() => onEditGame?.(copy)}
+                    >
+                      edit
+                    </button>
+                    <button
+                      type="button"
+                      className="button is-danger is-small"
+                      onClick={() => onDeleteGame?.(copy)}
+                    >
+                      delete
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
+
         <CommunityCopiesRail
           igdbId={igdbId}
           igdbPlatformId={igdbPlatformId}

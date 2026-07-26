@@ -21,6 +21,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 - Game detail page now surfaces IGDB proxy error messages instead of a generic "Could not load game data" failure.
+- Copy photo uploads now accept iPhone HEIC/HEIF files and convert them client-side before compression and Storage upload.
 - Replaced active collection CRUD and console-subcollection subscriptions with one canonical top-level copy source and owner-private value records.
 - Updated game pages to manage each owned copy independently and offer “Add another copy.”
 - Updated navigation to expose the public profile editor and stop displaying authenticated email addresses.

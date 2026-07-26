@@ -1,3 +1,4 @@
+import heic2any from "heic2any";
 import { storage } from "./firebase";
 import {
   deleteObject,
@@ -10,14 +11,58 @@ import {
 export const MAX_COPY_PHOTOS = 5;
 export const MAX_SOURCE_BYTES = 12 * 1024 * 1024;
 export const MAX_IMAGE_DIMENSION = 1800;
-const ACCEPTED_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+export const PHOTO_ACCEPT =
+  "image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif,.jpg,.jpeg,.png,.webp";
+
+const ACCEPTED_TYPES = new Set([
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/webp",
+]);
+
+export const isHeicFile = (file) => {
+  const type = (file.type || "").toLowerCase();
+  if (type === "image/heic" || type === "image/heif") return true;
+  return /\.heic$|\.heif$/i.test(file.name || "");
+};
+
+export const isAcceptedImageFile = (file) => {
+  if (isHeicFile(file)) return true;
+  const type = (file.type || "").toLowerCase();
+  if (ACCEPTED_TYPES.has(type)) return true;
+  return /\.(jpe?g|png|webp)$/i.test(file.name || "");
+};
 
 export const validatePhotoFile = (file) => {
-  if (!ACCEPTED_TYPES.has(file.type)) {
-    throw new Error("Photos must be JPEG, PNG, or WebP images");
+  if (!isAcceptedImageFile(file)) {
+    throw new Error("Photos must be JPEG, PNG, WebP, or HEIC images");
   }
   if (file.size > MAX_SOURCE_BYTES) {
     throw new Error("Each original photo must be 12 MB or smaller");
+  }
+};
+
+export const normalizePhotoFile = async (file) => {
+  validatePhotoFile(file);
+  if (!isHeicFile(file)) return file;
+
+  try {
+    const converted = await heic2any({
+      blob: file,
+      toType: "image/jpeg",
+      quality: 0.92,
+    });
+    const blob = Array.isArray(converted) ? converted[0] : converted;
+    const baseName = (file.name || "photo").replace(/\.(heic|heif)$/i, "");
+    return new File([blob], `${baseName}.jpg`, {
+      type: "image/jpeg",
+      lastModified: file.lastModified,
+    });
+  } catch {
+    throw new Error(
+      "Unable to process this HEIC photo. Try exporting it as JPEG and upload again."
+    );
   }
 };
 
@@ -38,8 +83,8 @@ const loadImage = async (file) => {
 };
 
 export const preparePhoto = async (file) => {
-  validatePhotoFile(file);
-  const image = await loadImage(file);
+  const normalized = await normalizePhotoFile(file);
+  const image = await loadImage(normalized);
   const scale = Math.min(
     1,
     MAX_IMAGE_DIMENSION / Math.max(image.width, image.height)
