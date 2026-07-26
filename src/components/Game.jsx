@@ -26,13 +26,29 @@ const Game = ({
       setError(null);
       try {
         const res = await fetch(`/api/igdb/game/${igdbId}`);
-        if (!res.ok) throw new Error("Failed to fetch game data");
+        const text = await res.text();
+        let data = null;
+        if (text) {
+          try {
+            data = JSON.parse(text);
+          } catch {
+            throw new Error("Invalid response from IGDB server");
+          }
+        }
 
-        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(
+            data?.error ||
+              (text
+                ? "Failed to fetch game data"
+                : "Failed to fetch game data. Is the IGDB server running? (cd server && npm start)")
+          );
+        }
+
         setGame(data);
       } catch (err) {
         console.error(err);
-        setError("Could not load game data");
+        setError(err.message || "Could not load game data");
       } finally {
         setLoading(false);
       }
