@@ -23,6 +23,14 @@ const Game = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [lightboxIndex, setLightboxIndex] = useState(null);
+  const [activeCopyPhotoPath, setActiveCopyPhotoPath] = useState(null);
+
+  const copyPhotoEntries = ownedCopies.flatMap((copy, copyIndex) =>
+    (copy.photoPaths ?? []).map((path, photoIndex) => ({
+      path,
+      alt: `${copy.title} copy ${copyIndex + 1} photo ${photoIndex + 1}`,
+    }))
+  );
 
   useEffect(() => {
     if (!igdbId) return;
@@ -65,6 +73,7 @@ const Game = ({
 
   useEffect(() => {
     setLightboxIndex(null);
+    setActiveCopyPhotoPath(null);
   }, [igdbId]);
 
   const screenshotItems =
@@ -176,6 +185,29 @@ const Game = ({
               </div>
             )}
 
+            {copyPhotoEntries.length > 0 && (
+              <section className="copy-photo-gallery mt-4">
+                <h3 className="title is-6 mb-2">Your copy photos</h3>
+                <div className="copy-photo-gallery__thumbs">
+                  {copyPhotoEntries.map((entry) => (
+                    <button
+                      key={entry.path}
+                      type="button"
+                      className="copy-photo-gallery__thumb"
+                      onClick={() => setActiveCopyPhotoPath(entry.path)}
+                      aria-label={`View ${entry.alt}`}
+                    >
+                      <StorageImage
+                        path={entry.path}
+                        alt={entry.alt}
+                        className="copy-photo-gallery__image"
+                      />
+                    </button>
+                  ))}
+                </div>
+              </section>
+            )}
+
             {ownedCopies.length > 0 && (
               <section className="owned-copies mt-5">
                 <h3 className="title is-5">Your copies</h3>
@@ -222,6 +254,31 @@ const Game = ({
           onSelectCopy={onSelectCommunityCopy}
         />
       </div>
+
+      {activeCopyPhotoPath && (
+        <div
+          className="screenshot-lightbox"
+          onClick={() => setActiveCopyPhotoPath(null)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Copy photo viewer"
+        >
+          <button
+            type="button"
+            className="screenshot-lightbox__close"
+            onClick={() => setActiveCopyPhotoPath(null)}
+            aria-label="Close"
+          >
+            ×
+          </button>
+          <StorageImage
+            path={activeCopyPhotoPath}
+            alt="Your copy photo"
+            className="screenshot-lightbox__image"
+            onClick={(event) => event.stopPropagation()}
+          />
+        </div>
+      )}
 
       {lightboxIndex !== null && gallery[lightboxIndex] && (
         <div

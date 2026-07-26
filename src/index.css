@@ -452,9 +452,61 @@ label {
   gap: 0.25rem;
 }
 
+.copy-photo-gallery__thumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.copy-photo-gallery__thumb {
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  background: none;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.copy-photo-gallery__thumb:hover,
+.copy-photo-gallery__thumb:focus-visible {
+  border-color: #646cff;
+}
+
+.copy-photo-gallery__image,
+.copy-photo-gallery__image.storage-image-placeholder {
+  width: 120px;
+  height: 90px;
+  min-width: 120px;
+  min-height: 90px;
+  object-fit: cover;
+  display: block;
+}
+
+.owned-copy-card__image.storage-image-placeholder {
+  width: 72px;
+  height: 72px;
+  min-width: 72px;
+  min-height: 72px;
+}
+
+.games-list__thumbnail.storage-image-placeholder {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  min-height: 42px;
+}
+
+.copy-card__image.storage-image-placeholder {
+  width: 84px;
+  height: 84px;
+  min-width: 84px;
+  min-height: 84px;
+}
+
 .storage-image-placeholder {
   display: block;
   background: rgba(127, 127, 127, 0.2);
+  border-radius: 6px;
 }
 
 .storage-image-placeholder.is-loading {

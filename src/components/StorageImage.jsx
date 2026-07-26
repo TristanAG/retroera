@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { loadStorageImage } from "../storageService";
+import { getStorageImageUrl } from "../storageService";
 
 const StorageImage = ({ path, alt, className = "", ...props }) => {
   const [url, setUrl] = useState("");
@@ -7,24 +7,22 @@ const StorageImage = ({ path, alt, className = "", ...props }) => {
 
   useEffect(() => {
     let active = true;
-    let objectUrl = "";
     setFailed(false);
     setUrl("");
 
     if (!path) return undefined;
-    loadStorageImage(path)
+
+    getStorageImageUrl(path)
       .then((loadedUrl) => {
-        objectUrl = loadedUrl;
         if (active) setUrl(loadedUrl);
-        else URL.revokeObjectURL(loadedUrl);
       })
-      .catch(() => {
+      .catch((error) => {
+        console.error("Unable to load storage image", path, error);
         if (active) setFailed(true);
       });
 
     return () => {
       active = false;
-      if (objectUrl) URL.revokeObjectURL(objectUrl);
     };
   }, [path]);
 

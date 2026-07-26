@@ -2,6 +2,7 @@ import { storage } from "./firebase";
 import {
   deleteObject,
   getBlob,
+  getDownloadURL,
   ref,
   uploadBytesResumable,
 } from "firebase/storage";
@@ -99,9 +100,18 @@ export const uploadCopyPhoto = async (
   return path;
 };
 
+export const getStorageImageUrl = async (path) => {
+  if (!path) return null;
+  return getDownloadURL(ref(storage, path));
+};
+
 export const loadStorageImage = async (path, maxBytes = 8 * 1024 * 1024) => {
-  const blob = await getBlob(ref(storage, path), maxBytes);
-  return URL.createObjectURL(blob);
+  try {
+    return await getStorageImageUrl(path);
+  } catch {
+    const blob = await getBlob(ref(storage, path), maxBytes);
+    return URL.createObjectURL(blob);
+  }
 };
 
 export const deletePhoto = async (path) => {
