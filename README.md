@@ -210,3 +210,14 @@ Use the Firebase Emulator Suite for Firestore and Storage rules verification bef
 - eBay integration scaffolding exists in `src/ebayService.js` but is not wired into primary flows.
 - A future move from Vite to Next.js remains optional and should be justified by routing, server-rendering, or deployment needs.
 
+## Next steps (TODO)
+
+### Physical consoles
+
+Treat physical consoles as first-class collection items—similar to games—with a dedicated console page linked from game metadata (e.g. the console label on a game page). Plan the following before implementation:
+
+- [ ] **Linking:** Console name on game pages should link to a dedicated console detail page.
+- [ ] **Adding consoles:** Support adding physical consoles to a collection the same way games are added (search/browse, metadata, condition, estimated value, photos, private/public visibility).
+- [ ] **Display:** Decide how owned consoles appear in the collection list, filters, profile views, and anywhere games are browsed today.
+- [ ] **Console page:** Define what the console detail page should show (hardware info, release year, photos, owned copies, compatible games in the user's collection, community copies, etc.).
+- [ ] **Data model:** Plan canonical console records, platform identifiers (IGDB or otherwise), and how console copies relate to game copies on the same platform.

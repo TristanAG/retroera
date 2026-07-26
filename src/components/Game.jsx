@@ -186,17 +186,21 @@ const Game = ({
 
           <div className="game-layout__content">
             <dl className="game-meta">
-              <div className="game-meta__item">
-                <dt>Console</dt>
-                <dd>{consoleName || game.platforms?.map((p) => p.name).join(", ") || "Unknown"}</dd>
+              <div className="game-meta__row">
+                <dt className="game-meta__label">Console</dt>
+                <dd className="game-meta__value">
+                  {consoleName || game.platforms?.map((p) => p.name).join(", ") || "Unknown"}
+                </dd>
               </div>
-              <div className="game-meta__item">
-                <dt>Developer</dt>
-                <dd>{game.involved_companies?.map((c) => c.company.name).join(", ") || "Unknown"}</dd>
+              <div className="game-meta__row">
+                <dt className="game-meta__label">Developer</dt>
+                <dd className="game-meta__value">
+                  {game.involved_companies?.map((c) => c.company.name).join(", ") || "Unknown"}
+                </dd>
               </div>
-              <div className="game-meta__item">
-                <dt>Release year</dt>
-                <dd>
+              <div className="game-meta__row">
+                <dt className="game-meta__label">Release year</dt>
+                <dd className="game-meta__value">
                   {game.first_release_date
                     ? new Date(game.first_release_date * 1000).getFullYear()
                     : "Unknown"}

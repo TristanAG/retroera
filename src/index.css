@@ -439,28 +439,36 @@ label {
 }
 
 .game-meta {
+  margin: 0;
+  border: 1px solid rgba(219, 219, 219, 0.55);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  overflow: hidden;
+}
+
+.game-meta__row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 1rem 1.5rem;
+  grid-template-columns: 6.5rem minmax(0, 1fr);
+  gap: 0.5rem 1.25rem;
+  align-items: baseline;
+  padding: 0.85rem 1rem;
   margin: 0;
 }
 
-.game-meta__item {
-  margin: 0;
+.game-meta__row + .game-meta__row {
+  border-top: 1px solid rgba(219, 219, 219, 0.35);
 }
 
-.game-meta dt {
-  margin: 0 0 0.25rem;
-  font-size: 0.75rem;
+.game-meta__label {
+  margin: 0;
+  font-size: 0.8rem;
   font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
   color: rgba(255, 255, 255, 0.55);
 }
 
-.game-meta dd {
+.game-meta__value {
   margin: 0;
-  line-height: 1.4;
+  line-height: 1.45;
 }
 
 .game-description .title {
@@ -707,6 +715,11 @@ label {
 @media (max-width: 640px) {
   .add-form {
     width: 100%;
+  }
+
+  .game-meta__row {
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
   }
 
   .owned-copy-card {
