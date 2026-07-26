@@ -1,0 +1,91 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function ownsCopy(data) {
+      return signedIn() && data.ownerId == request.auth.uid;
+    }
+
+    function validCopy(data) {
+      return data.keys().hasOnly([
+          'ownerId', 'igdbId', 'igdbPlatformId', 'console', 'title',
+          'condition', 'visibility', 'photoPaths', 'legacyGameId',
+          'createdAt', 'updatedAt'
+        ])
+        && data.ownerId is string
+        && data.igdbId is string
+        && data.igdbPlatformId is int
+        && data.console is string
+        && data.title is string
+        && data.condition is string
+        && data.visibility in ['private', 'public']
+        && data.photoPaths is list
+        && data.photoPaths.size() <= 5;
+    }
+
+    match /copies/{copyId} {
+      allow read: if ownsCopy(resource.data)
+        || (signedIn() && resource.data.visibility == 'public');
+      allow create: if ownsCopy(request.resource.data)
+        && request.resource.data.visibility == 'private'
+        && validCopy(request.resource.data);
+      allow update: if ownsCopy(resource.data)
+        && request.resource.data.ownerId == resource.data.ownerId
+        && validCopy(request.resource.data);
+      allow delete: if ownsCopy(resource.data);
+    }
+
+    match /profiles/{userId} {
+      allow read: if signedIn();
+      allow create, update: if signedIn()
+        && request.auth.uid == userId
+        && request.resource.data.displayName is string
+        && request.resource.data.displayName.size() >= 2
+        && request.resource.data.displayName.size() <= 40
+        && (
+          !('updatedAt' in request.resource.data)
+          || request.resource.data.updatedAt == request.time
+        );
+      allow delete: if signedIn() && request.auth.uid == userId;
+    }
+
+    match /reports/{reportId} {
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly([
+          'copyId', 'reporterId', 'reason', 'status', 'createdAt'
+        ])
+        && request.resource.data.reporterId == request.auth.uid
+        && request.resource.data.copyId is string
+        && exists(
+          /databases/$(database)/documents/copies/$(request.resource.data.copyId)
+        )
+        && get(
+          /databases/$(database)/documents/copies/$(request.resource.data.copyId)
+        ).data.visibility == 'public'
+        && request.resource.data.reason in [
+          'incorrect-details', 'inappropriate-image', 'spam', 'other'
+        ]
+        && request.resource.data.status == 'open';
+      allow read, update, delete: if false;
+    }
+
+    match /users/{userId} {
+      allow read, create, update, delete: if signedIn()
+        && request.auth.uid == userId;
+
+      match /copyPrivate/{copyId} {
+        allow read, create, update, delete: if signedIn()
+          && request.auth.uid == userId;
+      }
+
+      match /{legacyDocument=**} {
+        allow read, create, update, delete: if signedIn()
+          && request.auth.uid == userId;
+      }
+    }
+  }
+}

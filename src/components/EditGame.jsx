@@ -1,5 +1,6 @@
 import { CONDITION_PRICE_HINTS } from "../priceChartingService";
 import PriceChartingLink from "./PriceChartingLink";
+import PhotoManager from "./PhotoManager";
 
 function EditGame({
   game,
@@ -7,6 +8,12 @@ function EditGame({
   setCondition,
   estimatedValue,
   setEstimatedValue,
+  visibility,
+  setVisibility,
+  photoItems,
+  setPhotoItems,
+  isSaving,
+  uploadProgress,
   onSave,
   onCancel,
 }) {
@@ -62,14 +69,65 @@ function EditGame({
         )}
       </div>
 
+      <PhotoManager
+        items={photoItems}
+        setItems={setPhotoItems}
+        disabled={isSaving}
+      />
+
+      <fieldset className="field visibility-field">
+        <legend className="label">Visibility</legend>
+        <label className="radio">
+          <input
+            type="radio"
+            name="edit-visibility"
+            value="private"
+            checked={visibility === "private"}
+            disabled={isSaving}
+            onChange={(event) => setVisibility(event.target.value)}
+          />{" "}
+          Private
+        </label>
+        <label className="radio ml-4">
+          <input
+            type="radio"
+            name="edit-visibility"
+            value="public"
+            checked={visibility === "public"}
+            disabled={isSaving}
+            onChange={(event) => setVisibility(event.target.value)}
+          />{" "}
+          Public
+        </label>
+        <p className="help">
+          Public copies are visible to the community but are not listed for sale.
+        </p>
+      </fieldset>
+
+      {isSaving && (
+        <progress className="progress is-primary" value={uploadProgress} max="100">
+          {uploadProgress}%
+        </progress>
+      )}
+
       <div className="field is-grouped">
         <div className="control">
-          <button type="button" onClick={onSave} className="button is-primary">
-            Save
+          <button
+            type="button"
+            onClick={onSave}
+            className="button is-primary"
+            disabled={isSaving}
+          >
+            {isSaving ? "Saving…" : "Save"}
           </button>
         </div>
         <div className="control">
-          <button type="button" onClick={onCancel} className="button is-light">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="button is-light"
+            disabled={isSaving}
+          >
             Cancel
           </button>
         </div>

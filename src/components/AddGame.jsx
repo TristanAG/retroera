@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { CONSOLE_OPTIONS, CONSOLE_TO_IGDB_PLATFORM, searchGamesByPlatform } from "../igdbService";
 import { CONDITION_PRICE_HINTS } from "../priceChartingService";
 import PriceChartingLink from "./PriceChartingLink";
+import PhotoManager from "./PhotoManager";
 
 const SEARCH_DEBOUNCE_MS = 300;
 const ADD_GAME_SUGGESTION_LIMIT = 8;
@@ -17,6 +18,12 @@ function AddGame({
   setEstimatedValue,
   igdbId,
   setIgdbId,
+  visibility,
+  setVisibility,
+  photoItems,
+  setPhotoItems,
+  isSaving,
+  uploadProgress,
   handleAddGame,
 }) {
   const [suggestions, setSuggestions] = useState([]);
@@ -257,12 +264,54 @@ function AddGame({
         )}
       </div>
 
+      <PhotoManager
+        items={photoItems}
+        setItems={setPhotoItems}
+        disabled={isSaving}
+      />
+
+      <fieldset className="field visibility-field">
+        <legend className="label">Visibility</legend>
+        <label className="radio">
+          <input
+            type="radio"
+            name="visibility"
+            value="private"
+            checked={visibility === "private"}
+            disabled={isSaving}
+            onChange={(event) => setVisibility(event.target.value)}
+          />{" "}
+          Private
+        </label>
+        <label className="radio ml-4">
+          <input
+            type="radio"
+            name="visibility"
+            value="public"
+            checked={visibility === "public"}
+            disabled={isSaving}
+            onChange={(event) => setVisibility(event.target.value)}
+          />{" "}
+          Public
+        </label>
+        <p className="help">
+          Public copies show their photos, condition, and your public display
+          name to the community. Public does not mean for sale.
+        </p>
+      </fieldset>
+
+      {isSaving && (
+        <progress className="progress is-primary" value={uploadProgress} max="100">
+          {uploadProgress}%
+        </progress>
+      )}
+
       <button
         onClick={handleSubmit}
         className="button is-primary"
-        disabled={!igdbId}
+        disabled={!igdbId || isSaving}
       >
-        Add Game
+        {isSaving ? "Saving…" : "Add Copy"}
       </button>
     </div>
   );

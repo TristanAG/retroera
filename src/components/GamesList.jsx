@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { subscribeToConsoles, subscribeToGamesByConsole } from "../firestoreService";
+import { useEffect, useMemo, useState } from "react";
+import StorageImage from "./StorageImage";
 
 const PAGE_SIZE = 10;
 
@@ -7,26 +7,13 @@ const formatMoney = (amount) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(amount);
 
 const GamesList = ({ games, onSelectGame, onEditGame, onDeleteGame }) => {
-  const [consoles, setConsoles] = useState([]);
-  const [selectedConsoleGames, setSelectedConsoleGames] = useState([]);
   const [selectedConsole, setSelectedConsole] = useState(null);
   const [pageIndex, setPageIndex] = useState(0);
 
-  // Subscribe to consoles list in real-time
-  useEffect(() => {
-    const unsubscribe = subscribeToConsoles(setConsoles);
-    return () => unsubscribe();
-  }, []);
-
-  // Subscribe to games of selected console in real-time
-  useEffect(() => {
-    if (!selectedConsole) {
-      setSelectedConsoleGames([]);
-      return;
-    }
-    const unsubscribe = subscribeToGamesByConsole(selectedConsole, setSelectedConsoleGames);
-    return () => unsubscribe();
-  }, [selectedConsole]);
+  const consoles = useMemo(
+    () => [...new Set(games.map((game) => game.console))].sort(),
+    [games]
+  );
 
   useEffect(() => {
     setPageIndex(0);
@@ -38,7 +25,11 @@ const GamesList = ({ games, onSelectGame, onEditGame, onDeleteGame }) => {
     }
   }, [consoles, selectedConsole]);
 
-  const activeGames = selectedConsole === null ? games : selectedConsoleGames;
+  const selectedConsoleGames =
+    selectedConsole === null
+      ? games
+      : games.filter((game) => game.console === selectedConsole);
+  const activeGames = selectedConsoleGames;
 
   useEffect(() => {
     const maxPage = Math.max(0, Math.ceil(activeGames.length / PAGE_SIZE) - 1);
@@ -97,13 +88,6 @@ const GamesList = ({ games, onSelectGame, onEditGame, onDeleteGame }) => {
     </h3>
   );
 
-  const getCanonicalGame = (game) =>
-    games.find(
-      (g) =>
-        String(g.igdb_id).trim() === String(game.igdb_id).trim() &&
-        g.console === game.console
-    ) ?? game;
-
   // Helper: Render game row
   const renderGameRow = (game) => (
     <tr
@@ -115,6 +99,7 @@ const GamesList = ({ games, onSelectGame, onEditGame, onDeleteGame }) => {
         }
         onSelectGame({
           igdbId: game.igdb_id.trim(),
+          igdbPlatformId: game.igdb_platform_id,
           title: game.title,
           console: game.console,
         });
@@ -124,7 +109,18 @@ const GamesList = ({ games, onSelectGame, onEditGame, onDeleteGame }) => {
         opacity: game.igdb_id ? 1 : 0.6,
       }}
     >
-      <td>{game.title}</td>
+      <td>
+        <span className="games-list__title">
+          {game.photoPaths?.[0] && (
+            <StorageImage
+              path={game.photoPaths[0]}
+              alt=""
+              className="games-list__thumbnail"
+            />
+          )}
+          {game.title}
+        </span>
+      </td>
       <td>{game.console}</td>
       <td>{game.condition}</td>
       <td className="has-text-success-65 has-text-weight-semibold">${game.estimated_value}</td>
@@ -132,14 +128,14 @@ const GamesList = ({ games, onSelectGame, onEditGame, onDeleteGame }) => {
         <button
           type="button"
           className="button is-small"
-          onClick={() => onEditGame?.(getCanonicalGame(game))}
+          onClick={() => onEditGame?.(game)}
         >
           edit
         </button>
         <button
           type="button"
           className="button is-danger is-small"
-          onClick={() => onDeleteGame?.(getCanonicalGame(game))}
+          onClick={() => onDeleteGame?.(game)}
         >
           delete
         </button>

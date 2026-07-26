@@ -2,15 +2,21 @@
 import { useState, useEffect } from "react";
 import { igdbImageUrl } from "../igdbService";
 import PriceChartingLink from "./PriceChartingLink";
+import CommunityCopiesRail from "./CommunityCopiesRail";
+import StorageImage from "./StorageImage";
 
 const Game = ({
   igdbId,
+  igdbPlatformId,
+  consoleName,
   title,
   isInCollection,
-  collectionGame,
+  ownedCopies = [],
+  currentUserId,
   onAddToCollection,
   onEditGame,
   onDeleteGame,
+  onSelectCommunityCopy,
   onBack,
 }) => {
   const [game, setGame] = useState(null);
@@ -119,74 +125,102 @@ const Game = ({
       <div className="game-page__header">
         <button className="button is-small" onClick={onBack}>← Back</button>
         <div className="game-page__actions">
-          {!isInCollection && onAddToCollection && (
+          {onAddToCollection && (
             <button
               type="button"
               className="button is-primary is-small"
               onClick={onAddToCollection}
             >
-              + add game
+              {isInCollection ? "+ add another copy" : "+ add copy"}
             </button>
-          )}
-          {isInCollection && collectionGame && (
-            <>
-              <button
-                type="button"
-                className="button is-small"
-                onClick={() => onEditGame?.(collectionGame)}
-              >
-                edit
-              </button>
-              <button
-                type="button"
-                className="button is-danger is-small"
-                onClick={() => onDeleteGame?.(collectionGame)}
-              >
-                delete
-              </button>
-            </>
           )}
         </div>
       </div>
 
-      <div className={`game-layout${coverFull ? "" : " game-layout--content-only"}`}>
-        {coverFull && (
-          <div className="game-layout__media">
-            <button
-              type="button"
-              className="game-cover-btn"
-              onClick={() => setLightboxIndex(coverIndex)}
-              aria-label={`View ${game.name} cover art`}
-            >
-              <img className="game-cover" src={coverFull} alt={game.name} />
-            </button>
-          </div>
-        )}
-
-        <div className="game-layout__content">
-          <h2 className="title">{game.name}</h2>
-          <PriceChartingLink title={title ?? game.name} className="mb-4" />
-          <p><strong>Console:</strong> {game.platforms?.map(p => p.name).join(", ")}</p>
-          <p><strong>Developer:</strong> {game.involved_companies?.map(c => c.company.name).join(", ")}</p>
-          <p><strong>Release Year:</strong> {game.first_release_date ? new Date(game.first_release_date * 1000).getFullYear() : "Unknown"}</p>
-          <p><strong>Description:</strong> {game.summary || "No description available."}</p>
-
-          {screenshotItems.length > 0 && (
-            <div className="screenshot-thumbnails">
-              {screenshotItems.map((s, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  className="screenshot-thumbnail"
-                  onClick={() => setLightboxIndex(screenshotThumbOffset + i)}
-                  aria-label={`View screenshot ${i + 1}`}
-                >
-                  <img src={s.thumb} alt={s.alt} />
-                </button>
-              ))}
+      <div className="game-page__body">
+        <div className={`game-layout${coverFull ? "" : " game-layout--content-only"}`}>
+          {coverFull && (
+            <div className="game-layout__media">
+              <button
+                type="button"
+                className="game-cover-btn"
+                onClick={() => setLightboxIndex(coverIndex)}
+                aria-label={`View ${game.name} cover art`}
+              >
+                <img className="game-cover" src={coverFull} alt={game.name} />
+              </button>
             </div>
           )}
+
+          <div className="game-layout__content">
+            <h2 className="title">{game.name}</h2>
+            <PriceChartingLink title={title ?? game.name} className="mb-4" />
+            <p><strong>Console:</strong> {consoleName || game.platforms?.map(p => p.name).join(", ")}</p>
+            <p><strong>Developer:</strong> {game.involved_companies?.map(c => c.company.name).join(", ")}</p>
+            <p><strong>Release Year:</strong> {game.first_release_date ? new Date(game.first_release_date * 1000).getFullYear() : "Unknown"}</p>
+            <p><strong>Description:</strong> {game.summary || "No description available."}</p>
+
+            {screenshotItems.length > 0 && (
+              <div className="screenshot-thumbnails">
+                {screenshotItems.map((s, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    className="screenshot-thumbnail"
+                    onClick={() => setLightboxIndex(screenshotThumbOffset + i)}
+                    aria-label={`View screenshot ${i + 1}`}
+                  >
+                    <img src={s.thumb} alt={s.alt} />
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {ownedCopies.length > 0 && (
+              <section className="owned-copies mt-5">
+                <h3 className="title is-5">Your copies</h3>
+                <div className="owned-copies__list">
+                  {ownedCopies.map((copy, index) => (
+                    <article key={copy.id} className="owned-copy-card">
+                      <StorageImage
+                        path={copy.photoPaths?.[0]}
+                        alt={`${copy.title} copy ${index + 1}`}
+                        className="owned-copy-card__image"
+                      />
+                      <div>
+                        <strong>Copy {index + 1}</strong>
+                        <p>{copy.condition}</p>
+                        <span className="tag is-light">{copy.visibility}</span>
+                      </div>
+                      <div className="owned-copy-card__actions">
+                        <button
+                          type="button"
+                          className="button is-small"
+                          onClick={() => onEditGame?.(copy)}
+                        >
+                          edit
+                        </button>
+                        <button
+                          type="button"
+                          className="button is-danger is-small"
+                          onClick={() => onDeleteGame?.(copy)}
+                        >
+                          delete
+                        </button>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </section>
+            )}
+          </div>
         </div>
+        <CommunityCopiesRail
+          igdbId={igdbId}
+          igdbPlatformId={igdbPlatformId}
+          currentUserId={currentUserId}
+          onSelectCopy={onSelectCommunityCopy}
+        />
       </div>
 
       {lightboxIndex !== null && gallery[lightboxIndex] && (

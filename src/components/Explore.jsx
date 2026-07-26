@@ -158,6 +158,7 @@ function Explore({ onSelectGame }) {
           onClick={() =>
             onSelectGame({
               igdbId: game.id,
+              igdbPlatformId: CONSOLE_TO_IGDB_PLATFORM[selectedConsole],
               title: game.name,
               console: selectedConsole,
             })

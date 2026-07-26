@@ -1,0 +1,14 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "copies",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "igdbId", "order": "ASCENDING" },
+        { "fieldPath": "igdbPlatformId", "order": "ASCENDING" },
+        { "fieldPath": "visibility", "order": "ASCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

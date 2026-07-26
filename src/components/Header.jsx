@@ -1,4 +1,4 @@
-const Header = ({ user, onLogOut, setPage }) => {
+const Header = () => {
     return (
         <div>
             {/* <h1 className="is-size-2 has-text-primary-35" onClick={() => setPage('home')}>RetroEra</h1> */}

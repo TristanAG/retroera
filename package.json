@@ -10,7 +10,10 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "firebase:deploy:firestore": "npx firebase-tools deploy --only firestore",
+    "firebase:deploy:storage": "npx firebase-tools deploy --only storage",
+    "firebase:deploy:rules": "npx firebase-tools deploy --only firestore:rules,storage"
   },
   "dependencies": {
     "bulma": "^1.0.4",

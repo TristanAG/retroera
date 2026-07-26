@@ -1,0 +1,29 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function copyIsPublic(copyId) {
+      return firestore.exists(
+          /databases/(default)/documents/copies/$(copyId)
+        )
+        && firestore.get(
+          /databases/(default)/documents/copies/$(copyId)
+        ).data.visibility == 'public';
+    }
+
+    match /users/{userId}/copies/{copyId}/{fileName} {
+      // Owners can always read/write their own copy photos without a Firestore lookup.
+      allow read: if signedIn()
+        && (request.auth.uid == userId || copyIsPublic(copyId));
+      allow create, update: if signedIn()
+        && request.auth.uid == userId
+        && request.resource.size <= 8 * 1024 * 1024
+        && request.resource.contentType == 'image/webp';
+      allow delete: if signedIn() && request.auth.uid == userId;
+    }
+  }
+}
