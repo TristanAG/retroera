@@ -96,6 +96,9 @@ const Game = ({
 
   const coverIndex = coverFull ? 0 : null;
   const screenshotThumbOffset = coverFull ? 1 : 0;
+  const VISIBLE_SCREENSHOTS = 4;
+  const visibleScreenshots = screenshotItems.slice(0, VISIBLE_SCREENSHOTS);
+  const hasMoreScreenshots = screenshotItems.length > VISIBLE_SCREENSHOTS;
 
   useEffect(() => {
     if (lightboxIndex === null || gallery.length === 0) return;
@@ -167,14 +170,17 @@ const Game = ({
               )}
 
               {screenshotItems.length > 0 && (
-                <div className="screenshot-thumbnails">
-                  {screenshotItems.map((s, i) => (
+                <div
+                  className="screenshot-strip"
+                  aria-label={`${screenshotItems.length} screenshots`}
+                >
+                  {visibleScreenshots.map((s, i) => (
                     <button
                       key={i}
                       type="button"
-                      className="screenshot-thumbnail"
+                      className={`screenshot-strip__thumb${hasMoreScreenshots && i === visibleScreenshots.length - 1 ? " screenshot-strip__thumb--fade" : ""}`}
                       onClick={() => setLightboxIndex(screenshotThumbOffset + i)}
-                      aria-label={`View screenshot ${i + 1}`}
+                      aria-label={`View screenshot ${i + 1} of ${screenshotItems.length}`}
                     >
                       <img src={s.thumb} alt={s.alt} />
                     </button>
