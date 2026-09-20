@@ -1,3 +1,5 @@
+"use client";
+
 import { buildPriceChartingSearchUrl } from "../priceChartingService";
 
 function PriceChartingLink({ title, className = "" }) {

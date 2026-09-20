@@ -175,9 +175,9 @@ memberSince      // auto from createdAt
 - [ ] Port all existing pages from Vite routes to Next.js app/ directory
   - `app/page.jsx` — home redirect
   - [x] `app/(app)/collection/page.jsx` — my collection
-  - [ ] `app/(app)/browse/page.jsx` — game browser
-  - [ ] `app/(app)/games/[igdbId]/[platformId]/page.jsx` — game detail
-  - [ ] `app/(app)/copies/[id]/page.jsx` — copy detail
+  - [x] `app/(app)/browse/page.jsx` — game browser
+  - [x] `app/(app)/games/[igdbId]/[platformId]/page.jsx` — game detail
+  - [ ] `app/copies/[id]/page.jsx` — copy detail (public, outside auth shell)
   - [ ] `app/(app)/settings/page.jsx` — account settings
 - [x] Auth — `src/context/AuthContext.jsx`
 - [x] Route groups — `(app)` for authenticated routes (marketing/landing deferred)

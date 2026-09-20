@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import {
   MAX_COPY_PHOTOS,

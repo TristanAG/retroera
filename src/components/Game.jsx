@@ -1,3 +1,5 @@
+"use client";
+
 // components/Game.jsx
 import { useState, useEffect } from "react";
 import { igdbImageUrl } from "../igdbService";
@@ -55,7 +57,7 @@ const Game = ({
             data?.error ||
               (text
                 ? "Failed to fetch game data"
-                : "Failed to fetch game data. Is the IGDB server running? (cd server && npm start)")
+                : "Failed to fetch game data")
           );
         }
 

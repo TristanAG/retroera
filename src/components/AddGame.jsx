@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useRef, useState } from "react";
 import { CONSOLE_OPTIONS, CONSOLE_TO_IGDB_PLATFORM, searchGamesByPlatform } from "../igdbService";
 import { CONDITION_PRICE_HINTS } from "../priceChartingService";

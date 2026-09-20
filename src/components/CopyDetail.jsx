@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import { submitCopyReport } from "../copyService";
 import { getProfile } from "../profileService";

@@ -2,10 +2,11 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Navigation from "@/components/Navigation";
 import { useAuth } from "@/context/AuthContext";
 
 export default function AppShellLayout({ children }) {
-  const { user, loading, migrationIssues } = useAuth();
+  const { user, loading, migrationIssues, logOut } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -13,6 +14,11 @@ export default function AppShellLayout({ children }) {
       router.replace("/login");
     }
   }, [user, loading, router]);
+
+  const handleLogOut = async () => {
+    await logOut();
+    router.replace("/login");
+  };
 
   if (loading) {
     return (
@@ -31,6 +37,7 @@ export default function AppShellLayout({ children }) {
 
   return (
     <section className="section">
+      <Navigation user={user} onLogOut={handleLogOut} />
       {migrationIssues.length > 0 && (
         <div className="notification is-warning">
           <strong>Some legacy games need migration attention.</strong>

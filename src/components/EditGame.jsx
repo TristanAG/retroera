@@ -1,3 +1,5 @@
+"use client";
+
 import { CONDITION_PRICE_HINTS } from "../priceChartingService";
 import PriceChartingLink from "./PriceChartingLink";
 import PhotoManager from "./PhotoManager";

@@ -2,11 +2,11 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { auth } from "@/lib/firebase";
-import { logIn, logOut, signUp } from "@/authService";
+import { logIn, logOut, signUp } from "@/lib/authService";
 import {
   migrateLegacyGames,
   subscribeToOwnedCopies,
-} from "@/copyService";
+} from "@/lib/copyService";
 
 const AuthContext = createContext(null);
 

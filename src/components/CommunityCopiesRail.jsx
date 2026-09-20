@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import { getPublicCopiesByGame } from "../copyService";
 import { getProfiles } from "../profileService";

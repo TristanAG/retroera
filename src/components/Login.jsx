@@ -1,3 +1,5 @@
+"use client";
+
 const Login = ({ onLogin, onSignUp, setPassword, password, setEmail, email }) => {
     return (
         <div className="login-form">

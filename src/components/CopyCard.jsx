@@ -1,3 +1,5 @@
+"use client";
+
 import StorageImage from "./StorageImage";
 
 const CopyCard = ({ copy, displayName, onSelect }) => (
