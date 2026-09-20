@@ -167,23 +167,23 @@ memberSince      // auto from createdAt
 
 ### Migration Tasks
 
-- [ ] **Init Next.js project**
+- [x] **Init Next.js project** (JavaScript, Bulma — not TypeScript/Tailwind)
   ```bash
-  npx create-next-app@latest retroera --typescript --tailwind --app --src-dir
+  npx create-next-app@latest retroera --js --no-tailwind --app --src-dir
   ```
-- [ ] Port Firebase config — move firebase.ts into src/lib/firebase.ts
+- [x] Port Firebase config — `src/lib/firebase.js`
 - [ ] Port all existing pages from Vite routes to Next.js app/ directory
-  - `app/page.tsx` — home / landing
-  - `app/(app)/browse/page.tsx` — game browser
-  - `app/(app)/games/[id]/page.tsx` — game detail
-  - `app/(app)/collection/page.tsx` — my collection
-  - `app/(app)/copies/[id]/page.tsx` — copy detail
-  - `app/(app)/settings/page.tsx` — account settings
-- [ ] Auth — port Firebase Auth hooks into src/context/AuthContext.tsx
-- [ ] Route groups — use `(app)` group for authenticated routes, `(marketing)` for public pages
-- [ ] Middleware — create middleware.ts for auth-protected route redirects
-- [ ] Environment variables — migrate .env to .env.local with NEXT_PUBLIC_ prefix
-- [ ] Tailwind config — verify tailwind.config.ts includes src/**
+  - `app/page.jsx` — home redirect
+  - [x] `app/(app)/collection/page.jsx` — my collection
+  - [ ] `app/(app)/browse/page.jsx` — game browser
+  - [ ] `app/(app)/games/[igdbId]/[platformId]/page.jsx` — game detail
+  - [ ] `app/(app)/copies/[id]/page.jsx` — copy detail
+  - [ ] `app/(app)/settings/page.jsx` — account settings
+- [x] Auth — `src/context/AuthContext.jsx`
+- [x] Route groups — `(app)` for authenticated routes (marketing/landing deferred)
+- [ ] Middleware — create middleware.js for auth-protected route redirects
+- [x] Environment variables — `.env.local` with `NEXT_PUBLIC_` prefix
+- [x] Styling — Bulma + `src/index.css` retained (Tailwind not used)
 - [ ] Deploy to Vercel — connect repo, confirm production build passes
 - [ ] Smoke test — verify all existing features work: browse, add to collection, upload photos
 
