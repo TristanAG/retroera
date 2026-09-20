@@ -218,6 +218,44 @@ const Game = ({
               <h3 className="title is-6">Description</h3>
               <p>{game.summary || "No description available."}</p>
             </section>
+
+            {ownedCopies.length > 0 && (
+              <section className="game-page__section owned-copies">
+                <h3 className="title is-5">Your copies</h3>
+                <div className="owned-copies__list">
+                  {ownedCopies.map((copy, index) => (
+                    <article key={copy.id} className="owned-copy-card">
+                      <StorageImage
+                        path={copy.photoPaths?.[0]}
+                        alt={`${copy.title} copy ${index + 1}`}
+                        className="owned-copy-card__image"
+                      />
+                      <div>
+                        <strong>Copy {index + 1}</strong>
+                        <p>{copy.condition}</p>
+                        <span className="tag is-light">{copy.visibility}</span>
+                      </div>
+                      <div className="owned-copy-card__actions">
+                        <button
+                          type="button"
+                          className="button is-small"
+                          onClick={() => onEditGame?.(copy)}
+                        >
+                          edit
+                        </button>
+                        <button
+                          type="button"
+                          className="button is-danger is-small"
+                          onClick={() => onDeleteGame?.(copy)}
+                        >
+                          delete
+                        </button>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </section>
+            )}
           </div>
         </div>
 
@@ -239,44 +277,6 @@ const Game = ({
                     className="copy-photo-gallery__image"
                   />
                 </button>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {ownedCopies.length > 0 && (
-          <section className="game-page__section owned-copies">
-            <h3 className="title is-5">Your copies</h3>
-            <div className="owned-copies__list">
-              {ownedCopies.map((copy, index) => (
-                <article key={copy.id} className="owned-copy-card">
-                  <StorageImage
-                    path={copy.photoPaths?.[0]}
-                    alt={`${copy.title} copy ${index + 1}`}
-                    className="owned-copy-card__image"
-                  />
-                  <div>
-                    <strong>Copy {index + 1}</strong>
-                    <p>{copy.condition}</p>
-                    <span className="tag is-light">{copy.visibility}</span>
-                  </div>
-                  <div className="owned-copy-card__actions">
-                    <button
-                      type="button"
-                      className="button is-small"
-                      onClick={() => onEditGame?.(copy)}
-                    >
-                      edit
-                    </button>
-                    <button
-                      type="button"
-                      className="button is-danger is-small"
-                      onClick={() => onDeleteGame?.(copy)}
-                    >
-                      delete
-                    </button>
-                  </div>
-                </article>
               ))}
             </div>
           </section>

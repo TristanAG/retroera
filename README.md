@@ -1,68 +1,68 @@
 # RetroEra
 
-RetroEra is a retro physical media social network for cataloging, displaying, and valuing physical game collections. Collection ownership is the foundation, the social layer makes shared copies discoverable, and the long-term product vision adds safe buy/sell/trade activity without treating every public item as merchandise.
+RetroEra is a retro physical media social network for cataloging, displaying, and valuing physical game collections. Collection ownership is the foundation; the social layer makes shared copies discoverable; marketplace features build on top without treating every public copy as merchandise.
 
-## MVP phases
+**Product roadmap and build phases:** [`server/project-todo.md`](server/project-todo.md)
 
-### Phase I: collection management
+---
 
-- Complete: browse and search IGDB games across 28 retro platforms.
-- Complete: own multiple physical copies of the same game and platform.
-- Complete: track condition and a private estimated value for each copy.
-- Complete: upload, order, replace, and remove up to five physical-copy photos.
-- Complete: keep copies private or share them publicly.
-- Complete: browse collection totals and filter by console.
-- Complete: use PriceCharting as an external valuation reference.
-- Future: add physical consoles as first-class collection items.
-- Future: refine condition categories and integrate richer valuation data when a viable source is available.
+## Documentation
 
-### Phase II: social layer
+| Doc | Purpose |
+| --- | --- |
+| [`server/project-todo.md`](server/project-todo.md) | MVP phases, acceptance criteria, post-MVP marketplace roadmap |
+| [`QA_COMMUNITY_COPIES.md`](QA_COMMUNITY_COPIES.md) | Release and regression checklist |
+| [`CHANGELOG.md`](CHANGELOG.md) | Notable changes by release |
 
-- Foundation complete: public display-name profiles.
-- Foundation complete: community copies on platform-specific game pages.
-- Foundation complete: read-only public copy details and content reporting.
-- Future: public profile and collection pages.
-- Future: user discovery, member statistics, following, and activity feeds.
-- Future: record collection add/edit activity and eventual marketplace events.
+---
 
-### Phase III: marketplace
+## Repository layout
 
-- Future: create sale listings linked to physical copy records.
-- Future: browse active listings separately from public showcase copies.
-- Future: offers, reservations, purchases, shipping, refunds, and disputes.
-- Future: Stripe-based seller payments and a sustainable platform-fee model.
-- Future: surface completed transactions in the social layer where appropriate.
+```
+retroera/
+├── src/                    # React 19 + Vite frontend
+├── server/                 # Express IGDB proxy + project planning docs
+├── firestore.rules         # Firestore security rules
+├── firestore.indexes.json  # Composite indexes
+├── storage.rules           # Storage security rules
+├── storage.cors.json       # Bucket CORS config (apply via gcloud)
+└── firebase.json           # Firebase CLI config
+```
 
-Public visibility does not mean a copy is for sale. Marketplace availability will come from a separate active listing linked to the copy.
+Key frontend modules:
+
+- `src/App.jsx` — routing and application shell
+- `src/copyService.js` — canonical copy CRUD and migration
+- `src/storageService.js` — image processing and Firebase Storage
+- `src/profileService.js` — public display names
+- `src/igdbService.js` — IGDB API client (via Express proxy)
+
+---
 
 ## Current functionality
 
-- Firebase email/password authentication.
-- Public collector display names without exposing account email addresses.
-- Canonical physical-copy records supporting multiple copies of one release.
-- Private per-copy estimated values and aggregate collection values.
-- Private-by-default or public copy visibility.
-- Up to five ordered JPEG, PNG, WebP, or iPhone HEIC photos per copy:
-  - automatic HEIC-to-JPEG conversion in the browser;
-  - client-side resizing and WebP compression;
-  - corrected camera orientation;
-  - stripped EXIF/GPS metadata;
-  - a primary image used in collection and community previews.
-- IGDB-backed game details, covers, screenshots, release information, and companies.
-- Console-filtered and value-sorted collection browsing.
-- Platform-specific community-copy rail with public owner, photo, and condition.
-- Read-only public copy details with a clear “Not currently for sale” state.
-- Basic public-copy reporting for administrative moderation.
-- Automatic, idempotent migration from the legacy collection structure.
+- Firebase email/password authentication
+- Public collector display names (email never exposed)
+- Canonical physical-copy records — multiple copies per game/platform
+- Private per-copy estimated values and aggregate collection totals
+- Private-by-default or public copy visibility
+- Up to five ordered photos per copy (JPEG, PNG, WebP, HEIC) with client-side processing:
+  - HEIC-to-JPEG conversion, resize, WebP compression
+  - corrected camera orientation, stripped EXIF/GPS metadata
+- IGDB-backed game browse, search, covers, screenshots, and metadata
+- Console-filtered and value-sorted collection browsing
+- Platform-specific community-copy rail on game pages
+- Read-only public copy details with a clear “Not currently for sale” state
+- Basic public-copy reporting for administrative moderation
+- Automatic, idempotent migration from the legacy collection structure
+
+Public copy visibility does not mean a copy is for sale. Listings (when built) will reference `copyId` as a separate record — see `server/project-todo.md`.
+
+---
 
 ## Architecture
 
 - **Frontend:** React 19 + Vite in `src/`
-  - application orchestration: `src/App.jsx`
-  - UI features: `src/components/*`
-  - canonical copy access and migration: `src/copyService.js`
-  - image processing and Storage access: `src/storageService.js`
-  - public profiles: `src/profileService.js`
 - **IGDB proxy:** Express in `server/index.js`
   - `POST /api/igdb`
   - `GET /api/igdb/game/:id`
@@ -70,9 +70,11 @@ Public visibility does not mean a copy is for sale. Marketplace availability wil
   - Authentication: email/password
   - Firestore: copies, owner-private metadata, profiles, reports
   - Storage: processed physical-copy photos
-  - version-controlled rules and indexes: `firestore.rules`, `storage.rules`, and `firestore.indexes.json`
+  - version-controlled rules and indexes: `firestore.rules`, `storage.rules`, `firestore.indexes.json`
 
-## Current data model
+---
+
+## Data model
 
 `copies/{copyId}` is the canonical record for one physical item. Public-readable copy records contain only community-safe data:
 
@@ -88,32 +90,32 @@ Public visibility does not mean a copy is for sale. Marketplace availability wil
 
 Stable `igdbId + igdbPlatformId` identity prevents copies for different platforms from being mixed on one game page.
 
-Owner-only metadata is stored separately at:
+Owner-only metadata:
 
 - `users/{uid}/copyPrivate/{copyId}` — private estimated value and future private collection fields
 
-Social and moderation records use:
+Social and moderation:
 
 - `profiles/{uid}` — public display name only
 - `reports/{reportId}` — write-only reports for administrative review
 
-Photos are stored under:
+Photos:
 
 - `users/{uid}/copies/{copyId}/{photoId}.webp`
 
-The former `users/{uid}/games` and console subcollections are read only by the migration path. Existing data is retained for rollback; active collection operations use canonical copies.
+The former `users/{uid}/games` structure is read only by the migration path. Active collection operations use canonical copies.
 
-Future `listings/{listingId}` records will reference `copyId` instead of adding sale state to the copy itself.
+---
 
 ## Local setup
 
-Requirements:
+**Requirements:**
 
-- Node.js 20 recommended (`.nvmrc`); Node 18 or newer supported.
-- A Firebase project with Email/Password Auth, Firestore, and Storage enabled.
-- Twitch/IGDB API credentials for the Express proxy.
+- Node.js 20 recommended (`.nvmrc`); Node 18 or newer supported
+- A Firebase project with Email/Password Auth, Firestore, and Storage enabled
+- Twitch/IGDB API credentials for the Express proxy
 
-Create a root `.env` containing:
+Create a root `.env` (see `.env.example`):
 
 ```text
 VITE_FIREBASE_API_KEY=
@@ -124,7 +126,7 @@ VITE_FIREBASE_MESSAGING_SENDER_ID=
 VITE_FIREBASE_APP_ID=
 ```
 
-Create `server/.env` containing:
+Create `server/.env` (see `server/.env.example`):
 
 ```text
 TWITCH_CLIENT_ID=
@@ -146,34 +148,47 @@ npm install
 npm start
 ```
 
-Deploy Firebase rules and indexes with the Firebase CLI:
+The Vite dev server proxies IGDB requests to the Express server on port 3001.
+
+---
+
+## npm scripts
+
+| Script | Description |
+| --- | --- |
+| `npm run dev` | Start Vite dev server |
+| `npm run build` | Production build |
+| `npm run preview` | Preview production build |
+| `npm run lint` | ESLint |
+| `npm run firebase:deploy:firestore` | Deploy Firestore rules and indexes |
+| `npm run firebase:deploy:storage` | Deploy Storage rules |
+| `npm run firebase:deploy:rules` | Deploy Firestore + Storage rules |
+
+---
+
+## Firebase deployment
+
+Deploy Firestore rules and indexes:
 
 ```bash
 npm run firebase:deploy:firestore
 ```
 
-That deploys Firestore rules and indexes, which is enough for profiles, copies,
-and community-copy queries.
-
-Photo uploads also require Firebase Storage to be initialized in the console:
-[Firebase Storage setup](https://console.firebase.google.com/project/retrobay-e6467/storage)
-→ **Get started** (Blaze plan required). After Storage exists, deploy Storage rules:
+Photo uploads require Firebase Storage initialized in the [Firebase console](https://console.firebase.google.com/) (Blaze plan). Then deploy Storage rules:
 
 ```bash
 npm run firebase:deploy:storage
 ```
 
-The first Storage rules deployment that read Firestore for public copy photos may
-prompt a project owner to grant cross-service access between Storage and
-Firestore. Owner uploads work without that grant; community photo reads need it.
-
-Or deploy both once Storage is ready:
+Or deploy both:
 
 ```bash
 npm run firebase:deploy:rules
 ```
 
-Direct browser image reads require Storage bucket CORS. Apply `storage.cors.json` to the project bucket and add production origins before deployment:
+The first Storage rules deployment that reads Firestore for public copy photos may prompt a project owner to grant cross-service access between Storage and Firestore.
+
+Direct browser image reads require Storage bucket CORS. Apply `storage.cors.json` and add production origins before deployment:
 
 ```bash
 gcloud storage buckets update gs://YOUR_BUCKET --cors-file=storage.cors.json
@@ -181,55 +196,39 @@ gcloud storage buckets update gs://YOUR_BUCKET --cors-file=storage.cors.json
 
 `storage.cors.json` contains only the local Vite origin by default.
 
+Use the Firebase Emulator Suite for Firestore and Storage rules verification before deploying.
+
+---
+
 ## Migration behavior
 
-After authentication, RetroEra checks the signed-in user’s migration version and converts each legacy flat game document into:
+After authentication, RetroEra checks the signed-in user's migration version and converts each legacy flat game document into:
 
 1. one private canonical copy;
 2. one owner-private value record.
 
-Copy IDs are deterministic from the legacy owner/document pair, so interrupted migrations can resume without creating duplicates. Work is committed in bounded batches, progress and mapping errors are recorded, and completion is marked only when every legacy record maps successfully. Legacy documents are not deleted by this release.
+Copy IDs are deterministic from the legacy owner/document pair, so interrupted migrations can resume without creating duplicates. Work is committed in bounded batches; legacy documents are not deleted by this release.
 
-## Security and QA
+---
+
+## Security
 
 - New copies are always created as private drafts and become public only after photo and metadata writes complete.
 - Firestore rules prevent ownership reassignment and cross-user access to private values.
 - Storage rules permit owner reads/writes and community reads only for public copies.
 - Uploaded files are validated, resized, compressed, and stripped of metadata.
 - Account email addresses are not part of public profiles or copy cards.
-- The complete release checklist is in `QA_COMMUNITY_COPIES.md`.
 
-Use the Firebase Emulator Suite for Firestore and Storage rules verification before deploying this feature.
+Full release checklist: [`QA_COMMUNITY_COPIES.md`](QA_COMMUNITY_COPIES.md)
 
-## Current limits and future work
+---
 
-- Public profiles currently contain only display names; complete profile pages and social graphs are future work.
-- Reports require an administrative Firebase review/takedown process; no moderator dashboard exists yet.
-- Community-copy results are intentionally bounded; richer pagination and filtering can be added with marketplace demand.
-- Copy details are read-only. There are no listings, offers, payments, trades, transaction messaging, or sale guarantees.
+## Known limitations
+
+These reflect the **current codebase**, not the long-term plan. See [`server/project-todo.md`](server/project-todo.md) for what comes next.
+
+- Public profiles store display names only — no browsable profile pages or usernames yet.
+- No listings, offers, payments, or in-app messaging.
+- Reports require manual Firebase review; no moderator dashboard.
+- Community-copy queries are intentionally bounded (no pagination yet).
 - eBay integration scaffolding exists in `src/ebayService.js` but is not wired into primary flows.
-- A future move from Vite to Next.js remains optional and should be justified by routing, server-rendering, or deployment needs.
-
-## Next steps (TODO)
-
-### Public profile
-
-Profiles today are edit-only (`Profile.jsx`) and store a single `displayName`; names appear on community copy cards and copy detail, but there is no browsable profile page. Flesh out the public profile before expanding social features:
-
-- [ ] **Profile page:** Add a route (e.g. `/profile/:uid`) that any signed-in user can view, showing display name, member since, and public collection highlights.
-- [ ] **Profile fields:** Extend the allowlist in `firestore.rules` and `profileService.js` (e.g. bio, avatar URL, location, collection focus) with validation and sensible length limits.
-- [ ] **Editor:** Expand `Profile.jsx` beyond display name—preview how the public page will look, and surface which fields are visible to others.
-- [ ] **Discovery links:** Link owner display names on community rails and copy detail to the public profile page.
-- [ ] **Public collection view:** On the profile page, list that user's public copies (reuse community-copy query patterns; paginate if needed).
-- [ ] **Fallbacks and privacy:** Keep email and auth data off public surfaces; document fallback display names when a profile is missing or incomplete.
-- [ ] **QA:** Cover new flows in `QA_COMMUNITY_COPIES.md` (read paths, field allowlist, cross-user edit rejection).
-
-### Physical consoles
-
-Treat physical consoles as first-class collection items—similar to games—with a dedicated console page linked from game metadata (e.g. the console label on a game page). Plan the following before implementation:
-
-- [ ] **Linking:** Console name on game pages should link to a dedicated console detail page.
-- [ ] **Adding consoles:** Support adding physical consoles to a collection the same way games are added (search/browse, metadata, condition, estimated value, photos, private/public visibility).
-- [ ] **Display:** Decide how owned consoles appear in the collection list, filters, profile views, and anywhere games are browsed today.
-- [ ] **Console page:** Define what the console detail page should show (hardware info, release year, photos, owned copies, compatible games in the user's collection, community copies, etc.).
-- [ ] **Data model:** Plan canonical console records, platform identifiers (IGDB or otherwise), and how console copies relate to game copies on the same platform.
