@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { fallbackDisplayName, getProfile, saveMyProfile } from "../profileService";
+import { fallbackDisplayName, getProfile, saveMyProfile } from "@/lib/profileService";
 
 const Profile = ({ user }) => {
   const [displayName, setDisplayName] = useState("");

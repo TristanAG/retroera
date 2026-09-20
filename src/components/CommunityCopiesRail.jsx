@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getPublicCopiesByGame } from "../copyService";
-import { getProfiles } from "../profileService";
+import { getPublicCopiesByGame } from "@/lib/copyService";
+import { getProfiles } from "@/lib/profileService";
 import CopyCard from "./CopyCard";
 
 const CommunityCopiesRail = ({

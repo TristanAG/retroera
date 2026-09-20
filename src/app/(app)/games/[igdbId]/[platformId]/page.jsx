@@ -61,7 +61,7 @@ export default function GamePage() {
   };
 
   const handleSelectCommunityCopy = (copy) => {
-    router.push(`/copies/${copy.id}`);
+    router.push(`/copies/${copy.id}?from=game`);
   };
 
   return (

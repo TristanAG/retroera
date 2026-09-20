@@ -177,8 +177,10 @@ memberSince      // auto from createdAt
   - [x] `app/(app)/collection/page.jsx` — my collection
   - [x] `app/(app)/browse/page.jsx` — game browser
   - [x] `app/(app)/games/[igdbId]/[platformId]/page.jsx` — game detail
-  - [ ] `app/copies/[id]/page.jsx` — copy detail (public, outside auth shell)
-  - [ ] `app/(app)/settings/page.jsx` — account settings
+  - [x] `app/copies/[id]/page.jsx` — copy detail (public, outside auth shell)
+  - [x] `app/(app)/settings/page.jsx` — account settings
+  - [x] `app/(app)/collection/add/page.jsx` — add copy
+  - [x] `app/(app)/copies/[id]/edit/page.jsx` — edit copy
 - [x] Auth — `src/context/AuthContext.jsx`
 - [x] Route groups — `(app)` for authenticated routes (marketing/landing deferred)
 - [ ] Middleware — create middleware.js for auth-protected route redirects

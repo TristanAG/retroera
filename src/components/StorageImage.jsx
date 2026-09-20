@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getStorageImageUrl } from "../storageService";
+import { getStorageImageUrl } from "@/lib/storageService";
 
 const StorageImage = ({ path, alt, className = "", ...props }) => {
   const [url, setUrl] = useState("");

@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { submitCopyReport } from "../copyService";
-import { getProfile } from "../profileService";
+import { submitCopyReport } from "@/lib/copyService";
+import { getProfile } from "@/lib/profileService";
 import StorageImage from "./StorageImage";
 
 const CopyDetail = ({ copy, onBack }) => {
