@@ -172,7 +172,7 @@ memberSince      // auto from createdAt
   npx create-next-app@latest retroera --js --no-tailwind --app --src-dir
   ```
 - [x] Port Firebase config — `src/lib/firebase.js`
-- [ ] Port all existing pages from Vite routes to Next.js app/ directory
+- [x] Port all existing pages from Vite routes to Next.js app/ directory
   - `app/page.jsx` — home redirect
   - [x] `app/(app)/collection/page.jsx` — my collection
   - [x] `app/(app)/browse/page.jsx` — game browser
@@ -183,18 +183,19 @@ memberSince      // auto from createdAt
   - [x] `app/(app)/copies/[id]/edit/page.jsx` — edit copy
 - [x] Auth — `src/context/AuthContext.jsx`
 - [x] Route groups — `(app)` for authenticated routes (marketing/landing deferred)
-- [ ] Middleware — create middleware.js for auth-protected route redirects
+- [x] Middleware — `src/middleware.js` (legacy path redirects; auth via client-side `AuthGate`)
 - [x] Environment variables — `.env.local` with `NEXT_PUBLIC_` prefix
 - [x] Styling — Bulma + `src/index.css` retained (Tailwind not used)
-- [ ] Deploy to Vercel — connect repo, confirm production build passes
-- [ ] Smoke test — verify all existing features work: browse, add to collection, upload photos
+- [x] IGDB API routes — `src/app/api/igdb/` (replaces Express proxy for dev and production)
+- [ ] Deploy to Vercel — connect repo, set env vars, confirm production build passes
+- [x] Smoke test — browse, add to collection, upload photos verified in migration gates
 
-**Estimate:** 1-2 days. Do not proceed to Phase 1 until this is green.
+**Estimate:** 1-2 days. Do not proceed to Phase 1 until Vercel deploy is confirmed.
 
 ### Done When
 
-- All existing Vite features work in Next.js
-- Production build passes on Vercel
+- [x] All existing Vite features work in Next.js
+- [ ] Production build passes on Vercel
 
 ---
 
@@ -619,68 +620,40 @@ Only if all primary phases are complete.
 
 ## File & Folder Structure Reference (Next.js App Router)
 
+JavaScript only — use `.jsx` / `.js` extensions.
+
 ```
 src/
   app/
-    (marketing)/
-      page.tsx                    -- landing page
-      layout.tsx
+    layout.jsx                    -- root layout, Bulma, AuthProvider
+    page.jsx                      -- auth redirect
+    login/page.jsx
+    copies/[copyId]/page.jsx      -- public community copy detail
     (app)/
-      layout.tsx                  -- authenticated shell with nav
-      browse/
-        page.tsx
-      games/
-        [id]/
-          page.tsx
-      collection/
-        page.tsx
-      copies/
-        [id]/
-          page.tsx
-      marketplace/
-        page.tsx
-        [listingId]/
-          page.tsx
-      profile/
-        [username]/
-          page.tsx
-      community/
-        page.tsx
-      search/
-        page.tsx
-      dashboard/
-        listings/
-          page.tsx
-      settings/
-        profile/
-          page.tsx
-    api/                          -- Next.js API routes if needed
-  components/
-    ui/                           -- shared primitives
-    game/                         -- GameCard, GameCover, etc.
-    copy/                         -- CopyCard, CopyDetail, etc.
-    listing/                      -- ListingCard, ListingDetail, etc.
-    profile/                      -- ProfileHeader, CollectionGrid, etc.
-    marketplace/                  -- MarketplaceFilters, ListingGrid, etc.
-    community/                    -- ActivityFeed, MemberCard, etc.
-    layout/                       -- Nav, Footer, Sidebar, etc.
+      layout.jsx                  -- AuthGate + Navigation
+      browse/page.jsx
+      collection/page.jsx
+      collection/add/page.jsx
+      games/[igdbId]/[platformId]/page.jsx
+      copies/[copyId]/edit/page.jsx
+      settings/page.jsx
+      marketplace/                -- Phase 2 (future)
+      profile/[username]/         -- Phase 1 (future)
+    api/
+      igdb/route.js
+      igdb/game/[id]/route.js
+  components/                     -- existing UI components
   lib/
-    firebase.ts
-    firestore/
-      users.ts
-      copies.ts
-      listings.ts
-      activity.ts
-    utils.ts
+    firebase.js
+    copyService.js
+    storageService.js
+    profileService.js
+    igdbService.js
+    igdbProxy.js
+    copyActions.js
   context/
-    AuthContext.tsx
-  hooks/
-    useAuth.ts
-    useCollection.ts
-    useListings.ts
-  types/
-    index.ts                      -- all TypeScript interfaces
-  middleware.ts
+    AuthContext.jsx
+  middleware.js
 ```
 
 ---

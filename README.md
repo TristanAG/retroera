@@ -20,22 +20,27 @@ RetroEra is a retro physical media social network for cataloging, displaying, an
 
 ```
 retroera/
-├── src/                    # React 19 + Vite frontend
-├── server/                 # Express IGDB proxy + project planning docs
-├── firestore.rules         # Firestore security rules
-├── firestore.indexes.json  # Composite indexes
-├── storage.rules           # Storage security rules
-├── storage.cors.json       # Bucket CORS config (apply via gcloud)
-└── firebase.json           # Firebase CLI config
+├── src/
+│   ├── app/                # Next.js App Router pages and API routes
+│   ├── components/         # React UI
+│   ├── context/            # Auth and shared client state
+│   └── lib/                # Firebase, copy, storage, IGDB services
+├── server/                 # Project planning docs (legacy Express proxy archived)
+├── firestore.rules
+├── firestore.indexes.json
+├── storage.rules
+├── storage.cors.json
+└── firebase.json
 ```
 
-Key frontend modules:
+Key modules:
 
-- `src/App.jsx` — routing and application shell
-- `src/copyService.js` — canonical copy CRUD and migration
-- `src/storageService.js` — image processing and Firebase Storage
-- `src/profileService.js` — public display names
-- `src/igdbService.js` — IGDB API client (via Express proxy)
+- `src/context/AuthContext.jsx` — auth, migration, collection subscription
+- `src/lib/copyService.js` — canonical copy CRUD and migration
+- `src/lib/storageService.js` — image processing and Firebase Storage
+- `src/lib/profileService.js` — public display names
+- `src/lib/igdbService.js` — IGDB client (via Next.js API routes)
+- `src/app/api/igdb/` — Twitch/IGDB proxy (server-side)
 
 ---
 
@@ -46,9 +51,7 @@ Key frontend modules:
 - Canonical physical-copy records — multiple copies per game/platform
 - Private per-copy estimated values and aggregate collection totals
 - Private-by-default or public copy visibility
-- Up to five ordered photos per copy (JPEG, PNG, WebP, HEIC) with client-side processing:
-  - HEIC-to-JPEG conversion, resize, WebP compression
-  - corrected camera orientation, stripped EXIF/GPS metadata
+- Up to five ordered photos per copy (JPEG, PNG, WebP, HEIC) with client-side processing
 - IGDB-backed game browse, search, covers, screenshots, and metadata
 - Console-filtered and value-sorted collection browsing
 - Platform-specific community-copy rail on game pages
@@ -62,15 +65,17 @@ Public copy visibility does not mean a copy is for sale. Listings (when built) w
 
 ## Architecture
 
-- **Frontend:** React 19 + Vite in `src/`
-- **IGDB proxy:** Express in `server/index.js`
+- **Frontend:** React 19 + Next.js 16 (App Router) in `src/`
+- **IGDB proxy:** Next.js Route Handlers in `src/app/api/igdb/`
   - `POST /api/igdb`
-  - `GET /api/igdb/game/:id`
+  - `GET /api/igdb/game/[id]`
 - **Firebase**
   - Authentication: email/password
   - Firestore: copies, owner-private metadata, profiles, reports
   - Storage: processed physical-copy photos
   - version-controlled rules and indexes: `firestore.rules`, `storage.rules`, `firestore.indexes.json`
+
+Auth-protected routes use a client-side `AuthGate` in `src/app/(app)/layout.jsx`. Public copy detail at `/copies/[copyId]` lives outside the auth shell.
 
 ---
 
@@ -90,20 +95,11 @@ Public copy visibility does not mean a copy is for sale. Listings (when built) w
 
 Stable `igdbId + igdbPlatformId` identity prevents copies for different platforms from being mixed on one game page.
 
-Owner-only metadata:
+Owner-only metadata: `users/{uid}/copyPrivate/{copyId}`
 
-- `users/{uid}/copyPrivate/{copyId}` — private estimated value and future private collection fields
+Social and moderation: `profiles/{uid}`, `reports/{reportId}`
 
-Social and moderation:
-
-- `profiles/{uid}` — public display name only
-- `reports/{reportId}` — write-only reports for administrative review
-
-Photos:
-
-- `users/{uid}/copies/{copyId}/{photoId}.webp`
-
-The former `users/{uid}/games` structure is read only by the migration path. Active collection operations use canonical copies.
+Photos: `users/{uid}/copies/{copyId}/{photoId}.webp`
 
 ---
 
@@ -113,42 +109,37 @@ The former `users/{uid}/games` structure is read only by the migration path. Act
 
 - Node.js 20 recommended (`.nvmrc`); Node 18 or newer supported
 - A Firebase project with Email/Password Auth, Firestore, and Storage enabled
-- Twitch/IGDB API credentials for the Express proxy
+- Twitch/IGDB API credentials
 
-Create a root `.env` (see `.env.example`):
-
-```text
-VITE_FIREBASE_API_KEY=
-VITE_FIREBASE_AUTH_DOMAIN=
-VITE_FIREBASE_PROJECT_ID=
-VITE_FIREBASE_STORAGE_BUCKET=
-VITE_FIREBASE_MESSAGING_SENDER_ID=
-VITE_FIREBASE_APP_ID=
-```
-
-Create `server/.env` (see `server/.env.example`):
+Create `.env.local` at the project root (see `.env.example`):
 
 ```text
+NEXT_PUBLIC_FIREBASE_API_KEY=
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
+NEXT_PUBLIC_FIREBASE_APP_ID=
+
 TWITCH_CLIENT_ID=
 TWITCH_CLIENT_SECRET=
 ```
 
-Install and run:
+Install and run (single command — no separate Express server):
 
 ```bash
 npm install
 npm run dev
 ```
 
-In another terminal:
+Open http://localhost:3000
+
+Production preview:
 
 ```bash
-cd server
-npm install
-npm start
+npm run build
+npm run start
 ```
-
-The Vite dev server proxies IGDB requests to the Express server on port 3001.
 
 ---
 
@@ -156,9 +147,9 @@ The Vite dev server proxies IGDB requests to the Express server on port 3001.
 
 | Script | Description |
 | --- | --- |
-| `npm run dev` | Start Vite dev server |
+| `npm run dev` | Start Next.js dev server |
 | `npm run build` | Production build |
-| `npm run preview` | Preview production build |
+| `npm run start` | Run production server |
 | `npm run lint` | ESLint |
 | `npm run firebase:deploy:firestore` | Deploy Firestore rules and indexes |
 | `npm run firebase:deploy:storage` | Deploy Storage rules |
@@ -166,35 +157,25 @@ The Vite dev server proxies IGDB requests to the Express server on port 3001.
 
 ---
 
-## Firebase deployment
+## Deploying to Vercel
 
-Deploy Firestore rules and indexes:
-
-```bash
-npm run firebase:deploy:firestore
-```
-
-Photo uploads require Firebase Storage initialized in the [Firebase console](https://console.firebase.google.com/) (Blaze plan). Then deploy Storage rules:
-
-```bash
-npm run firebase:deploy:storage
-```
-
-Or deploy both:
-
-```bash
-npm run firebase:deploy:rules
-```
-
-The first Storage rules deployment that reads Firestore for public copy photos may prompt a project owner to grant cross-service access between Storage and Firestore.
-
-Direct browser image reads require Storage bucket CORS. Apply `storage.cors.json` and add production origins before deployment:
+1. Connect the repo to [Vercel](https://vercel.com) (Next.js is auto-detected).
+2. Set all `NEXT_PUBLIC_FIREBASE_*` and `TWITCH_*` environment variables in the Vercel project settings.
+3. Deploy the `main` branch (or your production branch).
+4. Add your Vercel production origin to `storage.cors.json` and apply to the Firebase Storage bucket:
 
 ```bash
 gcloud storage buckets update gs://YOUR_BUCKET --cors-file=storage.cors.json
 ```
 
-`storage.cors.json` contains only the local Vite origin by default.
+---
+
+## Firebase deployment
+
+```bash
+npm run firebase:deploy:firestore
+npm run firebase:deploy:storage   # after Storage is enabled in Firebase console
+```
 
 Use the Firebase Emulator Suite for Firestore and Storage rules verification before deploying.
 
@@ -202,12 +183,7 @@ Use the Firebase Emulator Suite for Firestore and Storage rules verification bef
 
 ## Migration behavior
 
-After authentication, RetroEra checks the signed-in user's migration version and converts each legacy flat game document into:
-
-1. one private canonical copy;
-2. one owner-private value record.
-
-Copy IDs are deterministic from the legacy owner/document pair, so interrupted migrations can resume without creating duplicates. Work is committed in bounded batches; legacy documents are not deleted by this release.
+After authentication, RetroEra checks the signed-in user's migration version and converts each legacy flat game document into one private canonical copy and one owner-private value record. Copy IDs are deterministic; legacy documents are not deleted.
 
 ---
 
@@ -217,7 +193,6 @@ Copy IDs are deterministic from the legacy owner/document pair, so interrupted m
 - Firestore rules prevent ownership reassignment and cross-user access to private values.
 - Storage rules permit owner reads/writes and community reads only for public copies.
 - Uploaded files are validated, resized, compressed, and stripped of metadata.
-- Account email addresses are not part of public profiles or copy cards.
 
 Full release checklist: [`QA_COMMUNITY_COPIES.md`](QA_COMMUNITY_COPIES.md)
 
@@ -225,10 +200,9 @@ Full release checklist: [`QA_COMMUNITY_COPIES.md`](QA_COMMUNITY_COPIES.md)
 
 ## Known limitations
 
-These reflect the **current codebase**, not the long-term plan. See [`server/project-todo.md`](server/project-todo.md) for what comes next.
+See [`server/project-todo.md`](server/project-todo.md) for the active roadmap. Current gaps:
 
-- Public profiles store display names only — no browsable profile pages or usernames yet.
+- Public profiles store display names only — username/slug profile pages are Phase 1.
 - No listings, offers, payments, or in-app messaging.
 - Reports require manual Firebase review; no moderator dashboard.
 - Community-copy queries are intentionally bounded (no pagination yet).
-- eBay integration scaffolding exists in `src/ebayService.js` but is not wired into primary flows.
