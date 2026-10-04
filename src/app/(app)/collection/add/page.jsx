@@ -1,15 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import AddGame from "@/components/AddGame";
 import { useAuth } from "@/context/AuthContext";
 import { addOwnedCopy, revokePhotoPreviewUrls } from "@/lib/copyActions";
+import {
+  buildGamePath,
+  clearAddCopyPrefill,
+  readAddCopyPrefill,
+} from "@/lib/gamePaths";
 
 export default function AddCopyPage() {
   const { user } = useAuth();
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   const [gameTitle, setGameTitle] = useState("");
   const [consoleName, setConsoleName] = useState("");
@@ -24,20 +28,19 @@ export default function AddCopyPage() {
 
   useEffect(() => {
     if (prefilled) return;
-    const title = searchParams.get("title");
-    const consoleParam = searchParams.get("console");
-    const igdb = searchParams.get("igdbId");
-    if (title || consoleParam || igdb) {
-      if (title) setGameTitle(title);
-      if (consoleParam) setConsoleName(consoleParam);
-      if (igdb) setIgdbId(igdb);
+    const prefill = readAddCopyPrefill();
+    if (prefill) {
+      if (prefill.title) setGameTitle(prefill.title);
+      if (prefill.console) setConsoleName(prefill.console);
+      if (prefill.igdbId) setIgdbId(String(prefill.igdbId));
       setCondition("CIB");
       setEstimatedValue("");
       setVisibility("private");
       setPhotoItems([]);
+      clearAddCopyPrefill();
     }
     setPrefilled(true);
-  }, [searchParams, prefilled]);
+  }, [prefilled]);
 
   const handleAddGame = async () => {
     if (!user) return;
@@ -57,13 +60,12 @@ export default function AddCopyPage() {
       });
       revokePhotoPreviewUrls(photoItems);
       setPhotoItems([]);
-      const query = new URLSearchParams({
-        from: "browse",
-        title: added.title,
-        console: added.console,
-      });
       router.push(
-        `/games/${added.igdbId}/${added.igdbPlatformId}?${query.toString()}`
+        buildGamePath({
+          platformId: added.igdbPlatformId,
+          consoleName: added.console,
+          name: added.title,
+        })
       );
     } catch (error) {
       alert(error.message);

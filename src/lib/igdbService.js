@@ -137,6 +137,7 @@ function mapGameResult(game) {
   return {
     id: String(game.id),
     name: game.name,
+    slug: game.slug ?? null,
     releaseYear: game.first_release_date
       ? new Date(game.first_release_date * 1000).getFullYear()
       : null,
@@ -156,7 +157,7 @@ export async function fetchGamesByPlatform(
 ) {
   const nameFilter = buildNamePrefixFilter(namePrefix);
   const query = `
-    fields id,name,cover.image_id,first_release_date;
+    fields id,name,slug,cover.image_id,first_release_date;
     where release_dates.platform = ${platformId} & ${buildRegionFilter(regionIds)}${nameFilter};
     sort ${sort};
     limit ${limit};
@@ -260,12 +261,12 @@ export async function searchGamesByPlatform(
   // run without a platform constraint and are narrowed client-side.
   const similarityQuery = `
     search "${escapedTitle}";
-    fields id,name,first_release_date,cover.image_id,platforms;
+    fields id,name,slug,first_release_date,cover.image_id,platforms;
     where platforms = (${platformId});
     limit ${fetchLimit};
   `;
   const filterQuery = `
-    fields id,name,first_release_date,cover.image_id,platforms;
+    fields id,name,slug,first_release_date,cover.image_id,platforms;
     where ${wordFilters};
     limit ${fetchLimit};
   `;

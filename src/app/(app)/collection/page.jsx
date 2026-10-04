@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import GamesList from "@/components/GamesList";
 import { useAuth } from "@/context/AuthContext";
 import { deleteOwnedCopy } from "@/lib/copyActions";
+import { buildGamePath } from "@/lib/gamePaths";
 
 export default function CollectionPage() {
   const { games } = useAuth();
@@ -16,7 +17,11 @@ export default function CollectionPage() {
     console: consoleName,
   }) => {
     router.push(
-      `/games/${encodeURIComponent(igdbId)}/${encodeURIComponent(igdbPlatformId)}?from=collection&title=${encodeURIComponent(title)}&console=${encodeURIComponent(consoleName)}`
+      buildGamePath({
+        platformId: igdbPlatformId,
+        consoleName,
+        name: title,
+      })
     );
   };
 

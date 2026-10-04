@@ -8,6 +8,7 @@ import {
   revokePhotoPreviewUrls,
   saveOwnedCopyEdit,
 } from "@/lib/copyActions";
+import { buildGamePath } from "@/lib/gamePaths";
 
 export default function EditCopyPage() {
   const params = useParams();
@@ -68,13 +69,12 @@ export default function EditCopyPage() {
       });
       revokePhotoPreviewUrls(photoItems);
       setPhotoItems([]);
-      const query = new URLSearchParams({
-        from: "collection",
-        title: saved.title,
-        console: saved.console,
-      });
       router.push(
-        `/games/${saved.igdbId}/${saved.igdbPlatformId}?${query.toString()}`
+        buildGamePath({
+          platformId: saved.igdbPlatformId,
+          consoleName: saved.console,
+          name: saved.title,
+        })
       );
     } catch (error) {
       alert(error.message);

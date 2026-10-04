@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import Explore from "@/components/Explore";
 import { CONSOLE_TO_IGDB_PLATFORM } from "@/lib/igdbService";
+import { buildGamePath } from "@/lib/gamePaths";
 
 export default function BrowsePage() {
   const router = useRouter();
@@ -12,11 +13,17 @@ export default function BrowsePage() {
     igdbPlatformId,
     title,
     console: consoleName,
+    slug,
   }) => {
     const platformId =
       Number(igdbPlatformId) || CONSOLE_TO_IGDB_PLATFORM[consoleName];
     router.push(
-      `/games/${encodeURIComponent(igdbId)}/${encodeURIComponent(platformId)}?from=browse&title=${encodeURIComponent(title)}&console=${encodeURIComponent(consoleName)}`
+      buildGamePath({
+        platformId,
+        consoleName,
+        slug,
+        name: title,
+      })
     );
   };
 

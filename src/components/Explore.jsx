@@ -163,6 +163,7 @@ function Explore({ onSelectGame }) {
               igdbPlatformId: CONSOLE_TO_IGDB_PLATFORM[selectedConsole],
               title: game.name,
               console: selectedConsole,
+              slug: game.slug,
             })
           }
         >

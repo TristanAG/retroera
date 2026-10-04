@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import CopyDetail from "@/components/CopyDetail";
 import { getPublicCopy } from "@/lib/copyService";
+import { buildGamePath } from "@/lib/gamePaths";
 
 export default function PublicCopyDetailPage() {
   const params = useParams();
-  const searchParams = useSearchParams();
   const router = useRouter();
   const copyId = String(params.copyId ?? "");
 
@@ -47,15 +47,13 @@ export default function PublicCopyDetailPage() {
   }, [copyId]);
 
   const handleBack = () => {
-    const from = searchParams.get("from");
-    if (from === "game" && copy) {
-      const query = new URLSearchParams({
-        from: "browse",
-        title: copy.title,
-        console: copy.console,
-      });
+    if (copy?.igdbId && copy?.igdbPlatformId) {
       router.push(
-        `/games/${copy.igdbId}/${copy.igdbPlatformId}?${query.toString()}`
+        buildGamePath({
+          platformId: copy.igdbPlatformId,
+          consoleName: copy.console,
+          name: copy.title,
+        })
       );
       return;
     }

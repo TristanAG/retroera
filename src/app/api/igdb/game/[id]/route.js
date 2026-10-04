@@ -9,7 +9,7 @@ export async function GET(_request, { params }) {
 
   try {
     const data = await postIgdbQuery(`
-        fields id,name,summary,first_release_date,platforms.name,involved_companies.company.name,screenshots.image_id,screenshots.url,cover.image_id,cover.url;
+        fields id,name,slug,summary,first_release_date,platforms.name,involved_companies.company.name,screenshots.image_id,screenshots.url,cover.image_id,cover.url;
         where id = ${id};
       `);
 
